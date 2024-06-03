@@ -26,18 +26,38 @@ std::ifstream Lexer::validate_and_open(const std::string &filename) {
   return filestream;
 }
 
-void Lexer::ingest_buffer(const std::string &filename) {
-  auto filestream = validate_and_open(filename);
+void Lexer::ingest_buffer() {
+  // Open the file and check if it's opened successfully
+  auto filestream = validate_and_open(_filename);
+  if (!filestream.is_open()) {
+    std::cerr << "error opening file\n";
+    exit(1);
+  }
+
+  // Move to the end to get the file size
+  filestream.seekg(0, std::ios::end);
   _filesize = filestream.tellg();
+
+  // Move back to the beginning of the file
   filestream.seekg(0, std::ios::beg);
-  _buffer.reserve(_filesize);
+
+  // Resize the buffer to fit the file contents
+  _buffer.resize(_filesize);
+
+  // Read the file contents into the buffer
   filestream.read(_buffer.data(), _filesize);
-  if (filestream.bad()) {
+
+  // Check if the read was successful
+  if (!filestream) {
     std::cerr << "error reading source file into buffer\n";
     exit(1);
   }
 
-  std::cout << "Filename: " << filename << "\nFile Size: " << _filesize << "\n";
+  // Close the file stream
+  filestream.close();
+
+  std::cout << "Filename: " << _filename << "\nFile Size: " << _filesize
+            << "\n";
 }
 
 const char Lexer::peek_next() const {
@@ -45,67 +65,84 @@ const char Lexer::peek_next() const {
 }
 
 const char Lexer::peek() const {
-  /*std::cout << _buffer[_pos] << "\n";*/
   return _pos < _filesize ? _buffer[_pos] : '\0';
 }
 
-std::string Lexer::token() const { return _token; }
+TOKEN Lexer::token() const { return _token; }
+
+std::string Lexer::literal() const { return _literal; }
+
 std::size_t Lexer::linum() const { return _linum; }
+
 std::size_t Lexer::pos() const { return _pos; }
+
 std::size_t Lexer::lpos() const { return _lpos; }
+
 std::size_t Lexer::tstart() const { return _token_start; }
-void Lexer::advance() {
+
+char Lexer::advance() {
   ++_pos;
   ++_lpos;
+  return peek();
 }
+
+void Lexer::dump_lexeme() const {
+  std::cout << "[" << _filename << "]" << linum() << ":" << tstart() << ": "
+            << static_cast<char>(token()) << " '" << literal() << "'"
+            << "\n";
+}
+
+void Lexer::match(const char rhs) {}
 
 const void Lexer::parse_error(const std::string &err) const {
   std::cerr << err << ":" << _buffer[_pos] << " found at " << _linum << ":"
             << _pos;
 }
 
-TOKEN Lexer::parse_ident() {
+void Lexer::parse_ident() {
   const auto pos = _pos;
   while (isalnum(peek()) || peek() == '_') {
     advance();
   }
   std::string identifier{_buffer.begin() + pos, _buffer.begin() + _pos};
-  _token = identifier;
+  _literal = identifier;
   if (identifier == var)
-    return TOKEN::VAR;
+    _token = TOKEN::VAR;
   else if (identifier == odd)
-    return TOKEN::ODD;
+    _token = TOKEN::ODD;
   else if (identifier == constex)
-    return TOKEN::CONST;
+    _token = TOKEN::CONST;
   else if (identifier == ifcond)
-    return TOKEN::IF;
+    _token = TOKEN::IF;
   else if (identifier == docond)
-    return TOKEN::DO;
+    _token = TOKEN::DO;
   else if (identifier == thencond)
-    return TOKEN::THEN;
+    _token = TOKEN::THEN;
   else if (identifier == call)
-    return TOKEN::CALL;
+    _token = TOKEN::CALL;
   else if (identifier == begin)
-    return TOKEN::BEGIN;
+    _token = TOKEN::BEGIN;
   else if (identifier == wloop)
-    return TOKEN::WHILE;
+    _token = TOKEN::WHILE;
   else if (identifier == procedure)
-    return TOKEN::PROCEDURE;
+    _token = TOKEN::PROCEDURE;
   else
-    return TOKEN::IDENT;
+    _token = TOKEN::IDENT;
+  --_pos;
 }
 
-TOKEN Lexer::parse_number() {
+void Lexer::parse_number() {
   std::string number;
   while (std::isdigit(peek()) || peek() == '\'') {
+    const auto digit = peek();
     if (peek() != '\'')
-      number += peek();
+      number += digit;
     advance();
   }
 
-  _token = number;
-
-  return TOKEN::NUMBER;
+  _literal = number;
+  _token = TOKEN::NUMBER;
+  --_pos;
 }
 
 void Lexer::parse_comment() {
@@ -115,16 +152,19 @@ void Lexer::parse_comment() {
   advance();
 }
 
-TOKEN Lexer::next_token() {
-  for (; _pos < _filesize; advance()) {
+Lexeme Lexer::next_lexeme() {
+  for (; _pos < _filesize;) {
+    _literal = "";
     _token_start = _lpos;
-    const auto c = peek();
-    if (std::isalpha(c) || c == '_') {
-      return parse_ident();
-    }
+    const auto c = advance();
+    std::cout << _pos << "\n";
 
-    if (std::isdigit(c)) {
-      return parse_number();
+    if (std::isalpha(c) || c == '_') {
+      parse_ident();
+      break;
+    } else if (std::isdigit(c)) {
+      parse_number();
+      break;
     }
 
     switch (c) {
@@ -162,13 +202,18 @@ TOKEN Lexer::next_token() {
     case '/':
       return TOKEN::DIVIDE;
     case '(':
+      std::cout << "LPAREN\n";
       return TOKEN::LPAREN;
     case ')':
+
+      std::cout << "RPAREN\n";
       return TOKEN::RPAREN;
     case ':':
-      if (peek_next() != '=')
+      if (peek_next() != '=') {
         parse_error("unexpected token");
-      exit(1);
+        exit(1);
+      }
+      return TOKEN::ASSIGN;
     case '\0':
       return TOKEN::ENDFILE;
     default:
@@ -176,7 +221,52 @@ TOKEN Lexer::next_token() {
       exit(1);
     }
   }
-  return TOKEN::ENDFILE;
+
+  return Lexeme(_token, _literal);
 }
+
+// void Lexer::parse() {
+//  for (; _pos < _filesize; advance()) {
+//     _token = next_lexeme();
+//     switch (_token) {
+//     case TOKEN::IDENT:
+//     case TOKEN::NUMBER:
+//     case TOKEN::CONST:
+//     case TOKEN::VAR:
+//     case TOKEN::PROCEDURE:
+//     case TOKEN::CALL:
+//     case TOKEN::BEGIN:
+//     case TOKEN::END:
+//     case TOKEN::IF:
+//     case TOKEN::THEN:
+//     case TOKEN::WHILE:
+//     case TOKEN::DO:
+//     case TOKEN::ODD:
+//       dump_lexeme();
+//       break;
+//     case TOKEN::DOT:
+//     case TOKEN::EQUAL:
+//     case TOKEN::COMMA:
+//     case TOKEN::SEMICOLON:
+//     case TOKEN::HASH:
+//     case TOKEN::LESSTHAN:
+//     case TOKEN::GREATERTHAN:
+//     case TOKEN::PLUS:
+//     case TOKEN::MINUS:
+//     case TOKEN::MULTIPLY:
+//     case TOKEN::DIVIDE:
+//     case TOKEN::LPAREN:
+//     case TOKEN::RPAREN:
+//       dump_lexeme();
+//       break;
+//     case TOKEN::ASSIGN:
+//     case TOKEN::ENDFILE:
+//       break;
+//     case TOKEN::UNKNOWN:
+//       std::cout << "unknown token found\n";
+//       exit(1);
+//     }
+//   }
+// }
 
 } // namespace gbpl0

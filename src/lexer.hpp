@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <string>
 #include <vector>
 namespace gbpl0 {
@@ -48,14 +49,27 @@ constexpr char floop[] = "for";
 constexpr char wloop[] = "while";
 constexpr char procedure[] = "procedure";
 
+struct Lexeme {
+  Lexeme(TOKEN token) : _token{token}, _literal{""} {};
+  Lexeme(TOKEN token, const std::string literal)
+      : _token{token}, _literal{literal} {};
+
+  TOKEN _token;
+  std::string _literal;
+};
+
 class Lexer {
 public:
-  Lexer() = default;
-  void ingest_buffer(const std::string &filename);
-  TOKEN next_token();
+  Lexer(const std::string &filename) : _filename{filename} {
+    ingest_buffer();
+    std::cout << "successfully ingested source code: " << _buffer.size()
+              << "\n";
+  };
+  Lexeme next_lexeme();
 
   // getters
-  std::string token() const;
+  std::string literal() const;
+  TOKEN token() const;
   std::size_t linum() const;
   std::size_t pos() const;
   std::size_t lpos() const;
@@ -66,21 +80,26 @@ private:
 
   // parse expressions
   void parse_comment();
-  TOKEN parse_ident();
-  TOKEN parse_number();
+  void parse_ident();
+  void parse_number();
 
   // helpers
   const char peek() const;
   const char peek_next() const;
   const void parse_error(const std::string &err) const;
-  void advance();
+  void match(const char rhs);
+  char advance();
+  void dump_lexeme() const;
+  void ingest_buffer();
 
   std::vector<char> _buffer;
-  std::string _token;
-  std::size_t _linum;
+  std::string _literal;
+  TOKEN _token;
+  std::size_t _linum = 0;
   std::size_t _lpos = 1;
-  std::size_t _token_start;
-  std::size_t _pos;
-  std::size_t _filesize;
+  std::size_t _token_start = 0;
+  std::size_t _pos = 0;
+  std::size_t _filesize = 0;
+  const std::string _filename;
 };
 } // namespace gbpl0

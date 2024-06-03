@@ -1,4 +1,5 @@
 #include "lexer.hpp"
+#include "parser.hpp"
 #include <cstdlib>
 #include <iostream>
 
@@ -34,16 +35,9 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  auto lexer = Lexer();
-  const auto filename = std::string(argv[1]);
-  lexer.ingest_buffer(filename);
-  TOKEN token;
-  while ((token = lexer.next_token()) != TOKEN::ENDFILE) {
-    std::cout << "[" << filename << "]" << lexer.linum() << ":"
-              << lexer.tstart() << ": " << static_cast<char>(token) << " = '"
-              << lexer.token() << "'"
-              << "\n";
-  }
+  auto lexer = Lexer(std::string(argv[1]));
+  auto parser = Parser(lexer);
+  parser.run();
   std::cout << "EOF\n";
 
   return 0;
