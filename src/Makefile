@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++17
+CXXFLAGS := -Wall -Wextra -std=c++20
 
 # Source files and object files
 SRCS := lexer.cpp parser.cpp main.cpp

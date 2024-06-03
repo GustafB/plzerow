@@ -27,58 +27,37 @@ std::ifstream Lexer::validate_and_open(const std::string &filename) {
 }
 
 void Lexer::ingest_buffer() {
-  // Open the file and check if it's opened successfully
   auto filestream = validate_and_open(_filename);
   if (!filestream.is_open()) {
     std::cerr << "error opening file\n";
     exit(1);
   }
 
-  // Move to the end to get the file size
   filestream.seekg(0, std::ios::end);
   _filesize = filestream.tellg();
 
-  // Move back to the beginning of the file
   filestream.seekg(0, std::ios::beg);
 
-  // Resize the buffer to fit the file contents
   _buffer.resize(_filesize);
 
-  // Read the file contents into the buffer
   filestream.read(_buffer.data(), _filesize);
 
-  // Check if the read was successful
   if (!filestream) {
     std::cerr << "error reading source file into buffer\n";
     exit(1);
   }
 
-  // Close the file stream
   filestream.close();
 
   std::cout << "Filename: " << _filename << "\nFile Size: " << _filesize
             << "\n";
 }
 
-const char Lexer::peek_next() const {
+char Lexer::peek_next() const {
   return _pos + 1 < _filesize ? _buffer[_pos + 1] : '\0';
 }
 
-const char Lexer::peek() const {
-  return _pos < _filesize ? _buffer[_pos] : '\0';
-}
-
-TOKEN Lexer::token() const { return _token; }
-
-std::string Lexer::literal() const { return _literal; }
-
-std::size_t Lexer::linum() const { return _linum; }
-
-std::size_t Lexer::pos() const { return _pos; }
-
-std::size_t Lexer::lpos() const { return _lpos; }
-
-std::size_t Lexer::tstart() const { return _token_start; }
+char Lexer::peek() const { return _pos < _filesize ? _buffer[_pos] : '\0'; }
 
 char Lexer::advance() {
   ++_pos;
@@ -87,14 +66,12 @@ char Lexer::advance() {
 }
 
 void Lexer::dump_lexeme() const {
-  std::cout << "[" << _filename << "]" << linum() << ":" << tstart() << ": "
-            << static_cast<char>(token()) << " '" << literal() << "'"
+  std::cout << "[" << _filename << "]" << _linum << ":" << _token_start << ": "
+            << static_cast<char>(_token) << " '" << _literal << "'"
             << "\n";
 }
 
-void Lexer::match(const char rhs) {}
-
-const void Lexer::parse_error(const std::string &err) const {
+void Lexer::parse_error(const std::string &err) const {
   std::cerr << err << ":" << _buffer[_pos] << " found at " << _linum << ":"
             << _pos;
 }

@@ -67,14 +67,6 @@ public:
   };
   Lexeme next_lexeme();
 
-  // getters
-  std::string literal() const;
-  TOKEN token() const;
-  std::size_t linum() const;
-  std::size_t pos() const;
-  std::size_t lpos() const;
-  std::size_t tstart() const;
-
 private:
   std::ifstream validate_and_open(const std::string &filename);
 
@@ -84,9 +76,9 @@ private:
   void parse_number();
 
   // helpers
-  const char peek() const;
-  const char peek_next() const;
-  const void parse_error(const std::string &err) const;
+  char peek() const;
+  char peek_next() const;
+  void parse_error(const std::string &err) const;
   void match(const char rhs);
   char advance();
   void dump_lexeme() const;
