@@ -4,12 +4,12 @@
 
 namespace gbpl0 {
 
-void Parser::next() { _lexemes.emplace_back(_lexer.next_lexeme()); }
+void Parser::next() { _lexemes.emplace_back(_lexer.next()); }
 
 void Parser::run() {
   Lexeme lex{TOKEN::ENDFILE};
   do {
-    lex = _lexer.next_lexeme();
+    lex = _lexer.next();
     _lexemes.push_back(lex);
     std::cout << "lex=" << static_cast<char>(lex._token) << ": " << lex._literal
               << "\n";

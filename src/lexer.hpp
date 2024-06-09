@@ -1,7 +1,9 @@
 #pragma once
-#include <iostream>
+
+#include "filehandler.hpp"
 #include <string>
 #include <vector>
+
 namespace gbpl0 {
 
 enum class TOKEN {
@@ -60,16 +62,17 @@ struct Lexeme {
 
 class Lexer {
 public:
-  Lexer(const std::string &filename) : _filename{filename} {
-    ingest_buffer();
-    std::cout << "successfully ingested source code: " << _buffer.size()
-              << "\n";
-  };
-  Lexeme next_lexeme();
+  Lexer() = default;
+  Lexer(Lexer &&) noexcept = default;
+  Lexer &operator=(Lexer &&) noexcept = default;
+  Lexer(const Lexer &) = delete;
+  Lexer &operator=(const Lexer &) = delete;
+
+  Lexeme next();
+  void expect(TOKEN token);
+  void read_file(const std::string &filename);
 
 private:
-  std::ifstream validate_and_open(const std::string &filename);
-
   // parse expressions
   void parse_comment();
   void parse_ident();
@@ -82,16 +85,22 @@ private:
   void match(const char rhs);
   char advance();
   void dump_lexeme() const;
-  void ingest_buffer();
 
+  // active state
   std::vector<char> _buffer;
   std::string _literal;
   TOKEN _token;
+
+  // position tracking
   std::size_t _linum = 0;
   std::size_t _lpos = 1;
   std::size_t _token_start = 0;
   std::size_t _pos = 0;
   std::size_t _filesize = 0;
-  const std::string _filename;
+  std::string _filename;
+
+  // file reader
+  FileHandler _filehandler{".pl0"};
 };
+
 } // namespace gbpl0

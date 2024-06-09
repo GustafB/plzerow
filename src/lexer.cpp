@@ -1,56 +1,21 @@
 #include "lexer.hpp"
 #include <cctype>
-#include <fstream>
 #include <iostream>
 #include <string>
 
 namespace gbpl0 {
 
-std::ifstream Lexer::validate_and_open(const std::string &filename) {
-  const std::string file_extension = ".pl0";
-  if (filename.length() >= file_extension.size()) {
-    if (filename.rfind(file_extension) !=
-        (filename.length() - file_extension.length())) {
-      std::cerr << "file is not of the right type\n";
-      exit(1);
-    }
-  }
-
-  auto filestream = std::ifstream(filename, std::ios::binary | std::ios::ate);
-
-  if (!filestream) {
-    std::cerr << "unable to open filename: " << filename << "\n";
-    exit(1);
-  }
-
-  return filestream;
+void Lexer::read_file(const std::string &filename) {
+  _buffer = _filehandler.read_file(filename);
+  _filesize = _buffer.size();
+  _filename = filename;
 }
 
-void Lexer::ingest_buffer() {
-  auto filestream = validate_and_open(_filename);
-  if (!filestream.is_open()) {
-    std::cerr << "error opening file\n";
-    exit(1);
+void Lexer::expect(TOKEN expected_token) {
+  if (_token != expected_token) {
+    parse_error("syntax error");
   }
-
-  filestream.seekg(0, std::ios::end);
-  _filesize = filestream.tellg();
-
-  filestream.seekg(0, std::ios::beg);
-
-  _buffer.resize(_filesize);
-
-  filestream.read(_buffer.data(), _filesize);
-
-  if (!filestream) {
-    std::cerr << "error reading source file into buffer\n";
-    exit(1);
-  }
-
-  filestream.close();
-
-  std::cout << "Filename: " << _filename << "\nFile Size: " << _filesize
-            << "\n";
+  next();
 }
 
 char Lexer::peek_next() const {
@@ -129,13 +94,11 @@ void Lexer::parse_comment() {
   advance();
 }
 
-Lexeme Lexer::next_lexeme() {
-  for (; _pos < _filesize;) {
+Lexeme Lexer::next() {
+  while (_pos < _filesize) {
     _literal = "";
     _token_start = _lpos;
     const auto c = advance();
-    std::cout << _pos << "\n";
-
     if (std::isalpha(c) || c == '_') {
       parse_ident();
       break;
@@ -179,11 +142,8 @@ Lexeme Lexer::next_lexeme() {
     case '/':
       return TOKEN::DIVIDE;
     case '(':
-      std::cout << "LPAREN\n";
       return TOKEN::LPAREN;
     case ')':
-
-      std::cout << "RPAREN\n";
       return TOKEN::RPAREN;
     case ':':
       if (peek_next() != '=') {
@@ -199,51 +159,9 @@ Lexeme Lexer::next_lexeme() {
     }
   }
 
+  /* dump_lexeme(); */
+
   return Lexeme(_token, _literal);
 }
-
-// void Lexer::parse() {
-//  for (; _pos < _filesize; advance()) {
-//     _token = next_lexeme();
-//     switch (_token) {
-//     case TOKEN::IDENT:
-//     case TOKEN::NUMBER:
-//     case TOKEN::CONST:
-//     case TOKEN::VAR:
-//     case TOKEN::PROCEDURE:
-//     case TOKEN::CALL:
-//     case TOKEN::BEGIN:
-//     case TOKEN::END:
-//     case TOKEN::IF:
-//     case TOKEN::THEN:
-//     case TOKEN::WHILE:
-//     case TOKEN::DO:
-//     case TOKEN::ODD:
-//       dump_lexeme();
-//       break;
-//     case TOKEN::DOT:
-//     case TOKEN::EQUAL:
-//     case TOKEN::COMMA:
-//     case TOKEN::SEMICOLON:
-//     case TOKEN::HASH:
-//     case TOKEN::LESSTHAN:
-//     case TOKEN::GREATERTHAN:
-//     case TOKEN::PLUS:
-//     case TOKEN::MINUS:
-//     case TOKEN::MULTIPLY:
-//     case TOKEN::DIVIDE:
-//     case TOKEN::LPAREN:
-//     case TOKEN::RPAREN:
-//       dump_lexeme();
-//       break;
-//     case TOKEN::ASSIGN:
-//     case TOKEN::ENDFILE:
-//       break;
-//     case TOKEN::UNKNOWN:
-//       std::cout << "unknown token found\n";
-//       exit(1);
-//     }
-//   }
-// }
 
 } // namespace gbpl0

@@ -35,8 +35,10 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  auto lexer = Lexer(std::string(argv[1]));
-  auto parser = Parser(lexer);
+  const auto filename = std::string(argv[1]);
+  auto lexer = Lexer();
+  lexer.read_file(filename);
+  auto parser = Parser(std::move(lexer));
   parser.run();
   std::cout << "EOF\n";
 

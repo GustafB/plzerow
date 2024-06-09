@@ -7,7 +7,7 @@ namespace gbpl0 {
 
 class Parser {
 public:
-  explicit Parser(Lexer lexer) : _lexer{lexer} {};
+  explicit Parser(Lexer &&lexer) : _lexer{std::move(lexer)} {};
   void run();
 
 private:
