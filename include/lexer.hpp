@@ -1,42 +1,12 @@
 #pragma once
 
 #include "filehandler.hpp"
+#include "lexeme.hpp"
+#include "token.hpp"
 #include <string>
 #include <vector>
 
 namespace gbpl0 {
-
-enum class TOKEN {
-  IDENT = 'I',
-  NUMBER = 'N',
-  CONST = 'C',
-  VAR = 'V',
-  PROCEDURE = 'P',
-  CALL = 'c',
-  BEGIN = 'B',
-  END = 'E',
-  IF = 'i',
-  THEN = 'T',
-  WHILE = 'W',
-  DO = 'D',
-  ODD = 'O',
-  DOT = '.',
-  EQUAL = '=',
-  COMMA = ',',
-  SEMICOLON = ';',
-  ASSIGN = ':',
-  HASH = '#',
-  LESSTHAN = '<',
-  GREATERTHAN = '>',
-  PLUS = '+',
-  MINUS = '-',
-  MULTIPLY = '*',
-  DIVIDE = '/',
-  LPAREN = '(',
-  RPAREN = ')',
-  ENDFILE = '\0',
-  UNKNOWN,
-};
 
 constexpr char var[] = "var";
 constexpr char odd[] = "odd";
@@ -51,15 +21,6 @@ constexpr char floop[] = "for";
 constexpr char wloop[] = "while";
 constexpr char procedure[] = "procedure";
 
-struct Lexeme {
-  Lexeme(TOKEN token) : _token{token}, _literal{""} {};
-  Lexeme(TOKEN token, const std::string literal)
-      : _token{token}, _literal{literal} {};
-
-  TOKEN _token;
-  std::string _literal;
-};
-
 class Lexer {
 public:
   Lexer() = default;
@@ -67,10 +28,14 @@ public:
   Lexer &operator=(Lexer &&) noexcept = default;
   Lexer(const Lexer &) = delete;
   Lexer &operator=(const Lexer &) = delete;
+  ~Lexer() = default;
 
   Lexeme next();
   void expect(TOKEN token);
   void read_file(const std::string &filename);
+
+  // debugging
+  void dump_lexeme(const Lexeme &lex) const;
 
 private:
   // parse expressions
@@ -84,7 +49,6 @@ private:
   void parse_error(const std::string &err) const;
   void match(const char rhs);
   char advance();
-  void dump_lexeme() const;
 
   // active state
   std::vector<char> _buffer;

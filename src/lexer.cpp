@@ -30,9 +30,9 @@ char Lexer::advance() {
   return peek();
 }
 
-void Lexer::dump_lexeme() const {
-  std::cout << "[" << _filename << "]" << _linum << ":" << _token_start << ": "
-            << static_cast<char>(_token) << " '" << _literal << "'"
+void Lexer::dump_lexeme(const Lexeme &lex) const {
+  std::cout << _filename << ":" << _linum << ":" << _token_start << ": "
+            << static_cast<char>(lex.token()) << " '" << lex.literal() << "'"
             << "\n";
 }
 
@@ -97,8 +97,10 @@ void Lexer::parse_comment() {
 Lexeme Lexer::next() {
   while (_pos < _filesize) {
     _literal = "";
+    _token = TOKEN::UNKNOWN;
     _token_start = _lpos;
     const auto c = advance();
+
     if (std::isalpha(c) || c == '_') {
       parse_ident();
       break;
@@ -120,46 +122,59 @@ Lexeme Lexer::next() {
       parse_comment();
       break;
     case '.':
-      return TOKEN::DOT;
+      _token = TOKEN::DOT;
+      return Lexeme(_token, ".");
     case '=':
-      return TOKEN::EQUAL;
+      _token = TOKEN::EQUAL;
+      return Lexeme(_token, "=");
     case ',':
-      return TOKEN::COMMA;
+      _token = TOKEN::COMMA;
+      return Lexeme(_token, ",");
     case ';':
-      return TOKEN::SEMICOLON;
+      _token = TOKEN::SEMICOLON;
+      return Lexeme(_token, ";");
     case '#':
-      return TOKEN::HASH;
+      _token = TOKEN::HASH;
+      return Lexeme(_token, "#");
     case '<':
-      return TOKEN::LESSTHAN;
+      _token = TOKEN::LESSTHAN;
+      return Lexeme(_token, "<");
     case '>':
-      return TOKEN::GREATERTHAN;
+      _token = TOKEN::GREATERTHAN;
+      return Lexeme(_token, ">");
     case '+':
-      return TOKEN::PLUS;
+      _token = TOKEN::PLUS;
+      return Lexeme(_token, "+");
     case '-':
-      return TOKEN::MINUS;
+      _token = TOKEN::MINUS;
+      return Lexeme(_token, "-");
     case '*':
-      return TOKEN::MULTIPLY;
+      _token = TOKEN::MULTIPLY;
+      return Lexeme(_token, "*");
     case '/':
-      return TOKEN::DIVIDE;
+      _token = TOKEN::DIVIDE;
+      return Lexeme(_token, "/");
     case '(':
-      return TOKEN::LPAREN;
+      _token = TOKEN::LPAREN;
+      return Lexeme(_token, "(");
     case ')':
-      return TOKEN::RPAREN;
+      _token = TOKEN::RPAREN;
+      return Lexeme(_token, ")");
     case ':':
       if (peek_next() != '=') {
         parse_error("unexpected token");
         exit(1);
       }
-      return TOKEN::ASSIGN;
+      _token = TOKEN::ASSIGN;
+      return Lexeme(_token, ":=");
     case '\0':
-      return TOKEN::ENDFILE;
+      _token = TOKEN::ENDFILE;
+      return Lexeme(_token, "");
     default:
       parse_error("unexpected token");
       exit(1);
     }
   }
-
-  /* dump_lexeme(); */
 
   return Lexeme(_token, _literal);
 }

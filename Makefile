@@ -3,7 +3,7 @@ CXX := g++
 CXXFLAGS := -Wall -Wextra -std=c++20
 
 # Source files and object files
-SRCS := lexer.cpp parser.cpp filehandler.cpp main.cpp
+SRCS := lexer.cpp parser.cpp filehandler.cpp lexeme.cpp main.cpp
 OBJS := $(SRCS:.cpp=.o)
 
 # Output binary
