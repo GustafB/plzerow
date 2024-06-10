@@ -1,10 +1,24 @@
 #include "chunk.hpp"
+#include "value.hpp"
 #include "virtual_machine.hpp"
 #include <cstdint>
 #include <fmt/core.h>
 #include <iostream>
 
-namespace {} // namespace
+namespace {
+
+template <typename T>
+std::size_t
+constant_instruction_helper(const std::string &name, std::size_t offset,
+                            const gbpl0::InstructionContainer &instructions,
+                            const gbpl0::ValueArray &constants) {
+  auto constant_index = instructions[offset + 1];
+  auto result = fmt::format("{:<16} {:4} '", name, constant_index);
+  std::cout << result << constants.at<T>(constant_index) << "\n";
+  return offset + 2;
+}
+
+} // namespace
 
 namespace gbpl0 {
 
@@ -16,15 +30,18 @@ std::size_t Chunk::simple_instruction(const std::string &name,
 
 std::size_t Chunk::constant_instruction(const std::string &name,
                                         std::size_t offset) {
-  auto constant_index = _instructions[offset + 1];
-  auto result = fmt::format("{:<16} {:4} '", name, constant_index);
-  std::cout << result << _constants.values()[constant_index] << "\n";
-  return offset + 2;
+  return constant_instruction_helper<double>(name, offset, _instructions,
+                                             _constants);
+}
+
+std::size_t Chunk::constant_long_instruction(const std::string &name,
+                                             std::size_t offset) {
+  return constant_instruction_helper<std::uint32_t>(name, offset, _instructions,
+                                                    _constants);
 }
 
 std::size_t Chunk::disassemble_instruction(std::size_t offset) {
   std::cout << fmt::format("{:04} ", offset);
-  /* std::cout << "offset = " << offset << "\n"; */
   if (offset > 0 && linum(offset) == linum(offset - 1))
     std::cout << "   | ";
   else
@@ -36,6 +53,8 @@ std::size_t Chunk::disassemble_instruction(std::size_t offset) {
     return simple_instruction("OP_RETURN", offset);
   case OP_CONSTANT:
     return constant_instruction("OP_CONSTANT", offset);
+  case OP_CONSTANT_LONG:
+    return constant_long_instruction("OP_CONSTANT_LONG", offset);
   default:
     std::cout << "unknown opcode " << instruction << "\n";
     return offset + 1;

@@ -8,5 +8,4 @@ std::size_t ValueArray::append(const Value &value) {
   _values.push_back(value);
   return _values.size() - 1;
 }
-
 } // namespace gbpl0
