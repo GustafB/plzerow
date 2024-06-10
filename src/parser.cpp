@@ -11,7 +11,10 @@ void Parser::parse_error(const std::string &err) const {
             << ": " << err << "\n";
 }
 
-void Parser::next() { _lexemes.emplace_back(_lexer.next()); }
+void Parser::next() {
+  _lexemes.emplace_back(_lexer.next());
+  std::cout << current() << "\n";
+}
 
 const Lexeme &Parser::current() const { return _lexemes.back(); }
 
@@ -26,7 +29,6 @@ void Parser::read_tokens() {
 }
 
 void Parser::expect(TOKEN expected_token) {
-  std::cout << current() << "\n";
   if (current().token() != expected_token) {
     std::stringstream err;
     err << "syntax error: expected token '" << static_cast<char>(expected_token)
@@ -106,7 +108,6 @@ void Parser::statement() {
     expect(TOKEN::END);
     break;
   case TOKEN::IF:
-    std::cout << "found if statement\n";
     expect(TOKEN::IF);
     condition();
     expect(TOKEN::THEN);
@@ -122,14 +123,14 @@ void Parser::statement() {
 
 void Parser::condition() {
   std::cout << "parsing condition\n";
-  const auto token = current().token();
-  if (token == TOKEN::ODD) {
+  if (current().token() == TOKEN::ODD) {
     expect(TOKEN::ODD);
     expression();
   } else {
+
     expression();
 
-    switch (token) {
+    switch (current().token()) {
     case TOKEN::EQUAL:
     case TOKEN::HASH:
     case TOKEN::LESSTHAN:
@@ -138,6 +139,7 @@ void Parser::condition() {
       break;
     default:
       std::cerr << "invalid conditional\n";
+      next();
     }
     expression();
   }
@@ -145,8 +147,7 @@ void Parser::condition() {
 
 void Parser::expression() {
   std::cout << "parsing expression\n";
-  auto token = current().token();
-  if (token == TOKEN::PLUS || token == TOKEN::MINUS) {
+  if (current().token() == TOKEN::PLUS || current().token() == TOKEN::MINUS) {
     next();
   }
 

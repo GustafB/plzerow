@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <unordered_map>
 
 namespace gbpl0 {
 
@@ -47,28 +48,26 @@ Lexeme Lexer::parse_ident() {
 
   std::string identifier{_buffer.begin() + pos, _buffer.begin() + _pos};
   _literal = identifier;
-  if (identifier == kw_var)
-    _token = TOKEN::VAR;
-  else if (identifier == kw_odd)
-    _token = TOKEN::ODD;
-  else if (identifier == kw_const)
-    _token = TOKEN::CONST;
-  else if (identifier == kw_cond)
-    _token = TOKEN::IF;
-  else if (identifier == kw_do)
-    _token = TOKEN::DO;
-  else if (identifier == kw_then)
-    _token = TOKEN::THEN;
-  else if (identifier == kw_call)
-    _token = TOKEN::CALL;
-  else if (identifier == kw_begin)
-    _token = TOKEN::BEGIN;
-  else if (identifier == kw_while)
-    _token = TOKEN::WHILE;
-  else if (identifier == kw_procedure)
-    _token = TOKEN::PROCEDURE;
-  else
+
+  static const std::unordered_map<std::string, TOKEN> keywords = {
+      {kw_var, TOKEN::VAR},
+      {kw_odd, TOKEN::ODD},
+      {kw_const, TOKEN::CONST},
+      {kw_cond, TOKEN::IF},
+      {kw_do, TOKEN::DO},
+      {kw_then, TOKEN::THEN},
+      {kw_call, TOKEN::CALL},
+      {kw_begin, TOKEN::BEGIN},
+      {kw_while, TOKEN::WHILE},
+      {kw_end, TOKEN::END},
+      {kw_procedure, TOKEN::PROCEDURE}};
+
+  auto it = keywords.find(identifier);
+  if (it != keywords.end()) {
+    _token = it->second;
+  } else {
     _token = TOKEN::IDENT;
+  }
 
   return Lexeme(_token, _literal, _linum, _token_line_pos);
 }

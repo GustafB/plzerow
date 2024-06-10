@@ -20,6 +20,7 @@ constexpr char kw_begin[] = "begin";
 constexpr char kw_for[] = "for";
 constexpr char kw_while[] = "while";
 constexpr char kw_procedure[] = "procedure";
+constexpr char kw_end[] = "end";
 
 class Lexer {
 public:
