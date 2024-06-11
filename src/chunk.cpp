@@ -10,8 +10,8 @@ namespace {
 template <typename T>
 std::size_t
 constant_instruction_helper(const std::string &name, std::size_t offset,
-                            const gbpl0::InstructionContainer &instructions,
-                            const gbpl0::ValueArray &constants) {
+                            const plzerow::InstructionContainer &instructions,
+                            const plzerow::ValueArray &constants) {
   auto constant_index = instructions[offset + 1];
   auto result = fmt::format("{:<16} {:4} '", name, constant_index);
   std::cout << result << constants.at<T>(constant_index) << "\n";
@@ -20,7 +20,7 @@ constant_instruction_helper(const std::string &name, std::size_t offset,
 
 } // namespace
 
-namespace gbpl0 {
+namespace plzerow {
 
 std::size_t Chunk::simple_instruction(const std::string &name,
                                       std::size_t offset) {
@@ -127,4 +127,4 @@ std::uint16_t Chunk::linum(std::size_t instruction_index) {
   return 0;
 }
 
-} // namespace gbpl0
+} // namespace plzerow

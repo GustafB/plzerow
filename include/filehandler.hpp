@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace gbpl0 {
+namespace plzerow {
 
 class FileHandler {
 public:
@@ -15,4 +15,4 @@ private:
   bool validate(const std::string &filename) const;
   std::string _extension;
 };
-} // namespace gbpl0
+} // namespace plzerow

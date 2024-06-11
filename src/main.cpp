@@ -29,7 +29,7 @@
  *
  */
 
-using namespace gbpl0;
+using namespace plzerow;
 
 void help() { std::cout << "usage: pl0 file.pl0\n"; }
 

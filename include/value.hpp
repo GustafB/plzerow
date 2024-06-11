@@ -5,7 +5,7 @@
 #include <variant>
 #include <vector>
 
-namespace gbpl0 {
+namespace plzerow {
 
 /* using Value = double; */
 using Value = std::variant<double, std::uint32_t>;
@@ -24,4 +24,4 @@ template <typename T> T ValueArray::at(std::size_t index) const {
   return std::get<T>(_values[index]);
 }
 
-} // namespace gbpl0
+} // namespace plzerow

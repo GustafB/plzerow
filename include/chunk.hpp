@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace gbpl0 {
+namespace plzerow {
 
 using LineCounter = std::uint32_t;
 using InstructionContainer = std::vector<std::uint8_t>;
@@ -33,4 +33,4 @@ private:
   ValueArray _constants;
 };
 
-} // namespace gbpl0
+} // namespace plzerow

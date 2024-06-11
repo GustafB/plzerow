@@ -5,7 +5,7 @@
 #include <string>
 #include <utility>
 
-namespace gbpl0 {
+namespace plzerow {
 
 class Lexeme {
 public:
@@ -40,4 +40,4 @@ private:
   std::size_t _token_start;
 };
 
-} // namespace gbpl0
+} // namespace plzerow

@@ -2,7 +2,7 @@
 #include "token.hpp"
 #include <ostream>
 
-namespace gbpl0 {
+namespace plzerow {
 
 TOKEN Lexeme::token() const { return _token; }
 
@@ -16,4 +16,4 @@ std::ostream &operator<<(std::ostream &os, const Lexeme &lexeme) {
      << "'";
   return os;
 }
-} // namespace gbpl0
+} // namespace plzerow

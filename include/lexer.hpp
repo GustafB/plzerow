@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace gbpl0 {
+namespace plzerow {
 
 constexpr char kw_var[] = "var";
 constexpr char kw_odd[] = "odd";
@@ -70,4 +70,4 @@ private:
   FileHandler _filehandler{".pl0"};
 };
 
-} // namespace gbpl0
+} // namespace plzerow

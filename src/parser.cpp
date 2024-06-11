@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace gbpl0 {
+namespace plzerow {
 
 void Parser::parse_error(const std::string &err) const {
   std::cerr << "ERROR:" << current().linum() << ":" << current().token_start()
@@ -186,4 +186,4 @@ void Parser::term() {
   }
 }
 
-} // namespace gbpl0
+} // namespace plzerow

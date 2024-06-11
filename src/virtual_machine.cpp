@@ -1,7 +1,7 @@
 #include "virtual_machine.hpp"
 #include <iostream>
 
-namespace gbpl0 {
+namespace plzerow {
 
 std::ostream &operator<<(std::ostream &os, OP_CODE color) {
   switch (color) {
@@ -13,4 +13,4 @@ std::ostream &operator<<(std::ostream &os, OP_CODE color) {
     return os << "Unknown";
   }
 }
-} // namespace gbpl0
+} // namespace plzerow

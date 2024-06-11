@@ -3,7 +3,7 @@
 #include "lexer.hpp"
 #include <vector>
 
-namespace gbpl0 {
+namespace plzerow {
 
 class Parser {
 public:
@@ -30,4 +30,4 @@ private:
   std::vector<Lexeme> _lexemes;
 };
 
-} // namespace gbpl0
+} // namespace plzerow

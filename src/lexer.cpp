@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace gbpl0 {
+namespace plzerow {
 
 void Lexer::read_file(const std::string &filename) {
   _buffer = _filehandler.read_file(filename);
@@ -192,4 +192,4 @@ Lexeme Lexer::next() {
   return Lexeme(TOKEN::ENDFILE, "\0", _linum, _token_line_pos);
 }
 
-} // namespace gbpl0
+} // namespace plzerow

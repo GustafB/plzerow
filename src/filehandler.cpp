@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 
-namespace gbpl0 {
+namespace plzerow {
 
 bool FileHandler::validate(const std::string &filename) const {
   const std::string file_extension = ".pl0";
@@ -49,4 +49,4 @@ std::vector<char> FileHandler::read_file(const std::string &filename) const {
   return buffer;
 }
 
-} // namespace gbpl0
+} // namespace plzerow

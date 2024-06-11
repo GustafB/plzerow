@@ -1,6 +1,6 @@
 #pragma once
 
-namespace gbpl0 {
+namespace plzerow {
 
 enum class TOKEN {
   IDENT = 'I',
