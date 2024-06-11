@@ -1,3 +1,4 @@
 pl0
 compile_commands.json
 build/*
+.cache
