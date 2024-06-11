@@ -1,5 +1,8 @@
+#include "chunk.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
+#include "virtual_machine.hpp"
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 
@@ -26,21 +29,18 @@
  *
  */
 
+using namespace gbpl0;
+
 void help() { std::cout << "usage: pl0 file.pl0\n"; }
 
-int main(int argc, char **argv) {
-  using namespace gbpl0;
-  if (argc != 2) {
-    help();
-    exit(1);
-  }
-
-  const auto filename = std::string(argv[1]);
-  auto lexer = Lexer();
-  lexer.read_file(filename);
-  auto parser = Parser(std::move(lexer));
-  parser.run();
-  std::cout << "EOF\n";
-
-  return 0;
+int main() {
+  Chunk c;
+  std::uint32_t v = 123456789;
+  c.append(OP_CODE::OP_CONSTANT, Value{123.5}, 123);
+  c.append(OP_CODE::OP_CONSTANT, Value{456.12}, 123);
+  c.append(OP_CODE::OP_RETURN, 123);
+  c.append(OP_CODE::OP_CONSTANT, Value{789.32}, 123);
+  c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 456);
+  c.append(OP_CODE::OP_RETURN, 456);
+  c.disassemble("test chunk");
 }
