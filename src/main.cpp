@@ -1,6 +1,5 @@
 #include "chunk.hpp"
-#include "lexer.hpp"
-#include "parser.hpp"
+#include "debugger.hpp"
 #include "virtual_machine.hpp"
 #include <cstdint>
 #include <cstdlib>
@@ -42,5 +41,8 @@ int main() {
   c.append(OP_CODE::OP_CONSTANT, Value{789.32}, 123);
   c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 456);
   c.append(OP_CODE::OP_RETURN, 456);
-  c.disassemble("test chunk");
+  c.append(OP_CODE::OP_RETURN, 456);
+
+  Debugger debugger(c);
+  debugger.disassemble("test chunk");
 }
