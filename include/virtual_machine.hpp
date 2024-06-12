@@ -32,7 +32,7 @@ private:
   InstructionPointer next();
   std::uint8_t next_test();
 
-  Value pop();
+  Value pop_stack();
 
   InstructionPointer _ip;
   Chunk _chunk;
