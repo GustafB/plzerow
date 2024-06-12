@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <iostream>
 #include <ostream>
 #include <utility>
 #include <variant>
@@ -8,15 +9,22 @@
 
 namespace plzerow {
 
-struct PrintVisitor {
-  PrintVisitor(std::ostream &os) : _os(os) {};
-  std::ostream &_os;
-  void operator()(double v) { _os << v; }
-  void operator()(std::uint32_t v) { _os << v; }
+template <class... Ts> struct Visitor : Ts... {
+  using Ts::operator()...;
+};
+template <class... Ts> Visitor(Ts...) -> Visitor<Ts...>;
+
+constexpr Visitor PrintVisitor{
+    [](double arg) { std::cout << arg; },
+    [](std::int32_t arg) { std::cout << arg; },
 };
 
-using Value = std::variant<double, std::uint32_t>;
+constexpr Visitor Number{
+    [](double arg) -> std::int32_t { return arg; },
+    [](std::int32_t arg) -> std::int32_t { return arg; },
+};
 
+using Value = std::variant<double, std::int32_t>;
 using ValueContainer = std::vector<Value>;
 using ValuePointer = ValueContainer::const_pointer;
 

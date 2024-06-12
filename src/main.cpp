@@ -1,6 +1,5 @@
 #include "chunk.hpp"
 #include "virtual_machine.hpp"
-#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 
@@ -33,15 +32,15 @@ void help() { std::cout << "usage: pl0 file.pl0\n"; }
 
 int main() {
   Chunk c;
-  std::uint32_t v = 123456789;
-  c.append(OP_CODE::OP_CONSTANT, Value{123.5}, 123);
-  c.append(OP_CODE::OP_CONSTANT, Value{456.12}, 123);
-  c.append(OP_CODE::OP_CONSTANT, Value{789.32}, 123);
-  c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 456);
-  c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 456);
-  c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 789);
-  c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 789);
-  c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 789);
+  c.append(OP_CODE::OP_CONSTANT, Value{100}, 123);
+  c.append(OP_CODE::OP_CONSTANT, Value{100}, 123);
+  c.append(OP_CODE::OP_ADD, 1000);
+  c.append(OP_CODE::OP_CONSTANT, Value{2}, 1000);
+  c.append(OP_CODE::OP_MULTIPLY, 1000);
+  c.append(OP_CODE::OP_CONSTANT, Value{100}, 1000);
+  c.append(OP_CODE::OP_SUBTRACT, 1000);
+  c.append(OP_CODE::OP_CONSTANT, Value{300}, 1000);
+  c.append(OP_CODE::OP_ADD, 1000);
   c.append(OP_CODE::OP_RETURN, 1000);
 
   VM vm(std::move(c));

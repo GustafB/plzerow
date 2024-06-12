@@ -12,8 +12,7 @@ std::size_t constant_instruction_helper(const std::string &name,
   auto constant_index = chunk.cbegin()[offset + 1];
   auto result = fmt::format("{:<16} {:4} '", name, constant_index);
   std::cout << result;
-  chunk.visit_constant(constant_index, std::forward<plzerow::PrintVisitor>(
-                                           plzerow::PrintVisitor(std::cout)));
+  chunk.visit_constant(constant_index, plzerow::PrintVisitor);
   std::cout << "\n";
   return offset + 2;
 }
@@ -47,6 +46,16 @@ std::size_t disassemble_instruction(std::size_t offset, const Chunk &chunk) {
 
   auto instruction = chunk.cbegin()[offset];
   switch (chunk.cbegin()[offset]) {
+  case OP_DIVIDE:
+    return simple_instruction("OP_DIVIDE", offset);
+  case OP_SUBTRACT:
+    return simple_instruction("OP_SUBTRACT", offset);
+  case OP_MULTIPLY:
+    return simple_instruction("OP_MULTIPLY", offset);
+  case OP_ADD:
+    return simple_instruction("OP_ADD", offset);
+  case OP_NEGATE:
+    return simple_instruction("OP_NEGATE", offset);
   case OP_RETURN:
     return simple_instruction("OP_RETURN", offset);
   case OP_CONSTANT:
