@@ -24,6 +24,8 @@ public:
   template <typename Visitor>
   auto visit_constant(std::size_t index, Visitor &&visitor) const;
 
+  Value constant(std::size_t index) const;
+
   std::uint16_t linum(std::size_t instruction_index) const;
 
 private:

@@ -60,4 +60,8 @@ std::uint16_t Chunk::linum(std::size_t instruction_index) const {
 
 InstructionPointer Chunk::cbegin() const { return _instructions.cbegin(); }
 
+Value Chunk::constant(std::size_t index) const {
+  return _constants.values()[index];
+}
+
 } // namespace plzerow
