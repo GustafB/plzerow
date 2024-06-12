@@ -27,6 +27,7 @@ add_executable(plzerow
     src/virtual_machine.cpp
     src/chunk.cpp
     src/value.cpp
+    src/debugger.cpp
 )
 
 target_include_directories(plzerow PUBLIC
