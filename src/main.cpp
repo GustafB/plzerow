@@ -1,5 +1,4 @@
 #include "chunk.hpp"
-#include "debugger.hpp"
 #include "virtual_machine.hpp"
 #include <cstdint>
 #include <cstdlib>
@@ -37,12 +36,14 @@ int main() {
   std::uint32_t v = 123456789;
   c.append(OP_CODE::OP_CONSTANT, Value{123.5}, 123);
   c.append(OP_CODE::OP_CONSTANT, Value{456.12}, 123);
-  c.append(OP_CODE::OP_RETURN, 123);
   c.append(OP_CODE::OP_CONSTANT, Value{789.32}, 123);
   c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 456);
-  c.append(OP_CODE::OP_RETURN, 456);
-  c.append(OP_CODE::OP_RETURN, 456);
+  c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 456);
+  c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 789);
+  c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 789);
+  c.append(OP_CODE::OP_CONSTANT_LONG, Value{v}, 789);
+  c.append(OP_CODE::OP_RETURN, 1000);
 
-  Debugger debugger(c);
-  debugger.disassemble("test chunk");
+  VM vm(std::move(c));
+  vm.run();
 }
