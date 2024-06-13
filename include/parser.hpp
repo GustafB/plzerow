@@ -1,12 +1,12 @@
 #pragma once
 
-#include "lexeme.hpp"
+#include "token.hpp"
 #include <iostream>
 #include <vector>
 
 namespace {
 
-using Tokens = std::vector<plzerow::Lexeme>;
+using Tokens = std::vector<plzerow::Token>;
 using TokenIterator = Tokens::const_iterator;
 
 } // namespace
@@ -16,8 +16,8 @@ namespace plzerow {
 class Parser {
 public:
   Parser() = default;
-  Parser(std::vector<Lexeme> &&tokens)
-      : _tokens{std::forward<std::vector<Lexeme>>(tokens)},
+  Parser(std::vector<Token> &&tokens)
+      : _tokens{std::forward<std::vector<Token>>(tokens)},
         _current{_tokens.cbegin()} {
     std::cout << "total tokens: " << _tokens.size() << "\n";
   };
@@ -25,7 +25,7 @@ public:
   void parse();
 
 private:
-  const Lexeme &current() const;
+  const Token &current() const;
   void expect(TOKEN expected_token);
   void next();
 

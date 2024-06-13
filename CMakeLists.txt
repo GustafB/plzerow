@@ -21,7 +21,7 @@ FetchContent_MakeAvailable(fmt)
 add_executable(plzerow
     src/main.cpp
     src/inputhandler.cpp
-    src/lexeme.cpp
+    src/token.cpp
     src/lexer.cpp
     src/parser.cpp
     src/virtual_machine.cpp

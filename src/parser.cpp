@@ -1,25 +1,36 @@
 #include "parser.hpp"
-#include "token.hpp"
+#include "token_type.hpp"
 #include <iostream>
 #include <sstream>
 
 namespace plzerow {
 
 void Parser::parse_error(const std::string &err) const {
-  std::cerr << "ERROR:" << current().linum() << ":" << current().token_start()
-            << ": " << err << "\n";
+  std::cerr << "[PARSE_ERROR] [" << current().linum() << ":"
+            << current().token_start() << "] " << err << "\n";
 }
 
-void Parser::next() { ++_current; }
+void Parser::next() {
+  std::cout << *_current << "\n";
+  ++_current;
+}
 
-const Lexeme &Parser::current() const { return *_current; }
+const Token &Parser::current() const { return *_current; }
 
 void Parser::expect(TOKEN expected_token) {
-  if (current().token() != expected_token) {
+  if (current().type() != expected_token) {
     std::stringstream err;
+
+    if (current().type() == TOKEN::ENDFILE) {
+      err << "end of file reached without terminator '.'";
+      parse_error(err.str());
+      return;
+    }
+
     err << "syntax error: expected token '" << static_cast<char>(expected_token)
-        << "' but found '" << static_cast<char>(current().token()) << "'\n";
+        << "' but found '" << static_cast<char>(current().type()) << "'\n";
     parse_error(err.str());
+    return;
   }
   next();
 }
@@ -30,14 +41,13 @@ void Parser::parse() {
 }
 
 void Parser::block() {
-  if (current().token() == TOKEN::CONST) {
-    std::cout << "parsing const block\n";
+  if (current().type() == TOKEN::CONST) {
     expect(TOKEN::CONST);
     expect(TOKEN::IDENT);
     expect(TOKEN::EQUAL);
     expect(TOKEN::NUMBER);
 
-    while (current().token() == TOKEN::COMMA) {
+    while (current().type() == TOKEN::COMMA) {
       expect(TOKEN::COMMA);
       expect(TOKEN::IDENT);
       expect(TOKEN::EQUAL);
@@ -47,12 +57,11 @@ void Parser::block() {
     expect(TOKEN::SEMICOLON);
   }
 
-  if (current().token() == TOKEN::VAR) {
-    std::cout << "parsing var block\n";
+  if (current().type() == TOKEN::VAR) {
     expect(TOKEN::VAR);
     expect(TOKEN::IDENT);
 
-    while (current().token() == TOKEN::COMMA) {
+    while (current().type() == TOKEN::COMMA) {
       expect(TOKEN::COMMA);
       expect(TOKEN::IDENT);
     }
@@ -60,8 +69,7 @@ void Parser::block() {
     expect(TOKEN::SEMICOLON);
   }
 
-  while (current().token() == TOKEN::PROCEDURE) {
-    std::cout << "parsing procedure block\n";
+  while (current().type() == TOKEN::PROCEDURE) {
     expect(TOKEN::PROCEDURE);
     expect(TOKEN::IDENT);
     expect(TOKEN::SEMICOLON);
@@ -75,8 +83,7 @@ void Parser::block() {
 }
 
 void Parser::statement() {
-  std::cout << "parsing statement\n";
-  switch (current().token()) {
+  switch (current().type()) {
   case TOKEN::IDENT:
     expect(TOKEN::IDENT);
     expect(TOKEN::ASSIGN);
@@ -85,7 +92,7 @@ void Parser::statement() {
   case TOKEN::BEGIN:
     expect(TOKEN::BEGIN);
     statement();
-    while (current().token() == TOKEN::SEMICOLON) {
+    while (current().type() == TOKEN::SEMICOLON) {
       expect(TOKEN::SEMICOLON);
       statement();
     }
@@ -106,15 +113,14 @@ void Parser::statement() {
 }
 
 void Parser::condition() {
-  std::cout << "parsing condition\n";
-  if (current().token() == TOKEN::ODD) {
+  if (current().type() == TOKEN::ODD) {
     expect(TOKEN::ODD);
     expression();
   } else {
 
     expression();
 
-    switch (current().token()) {
+    switch (current().type()) {
     case TOKEN::EQUAL:
     case TOKEN::HASH:
     case TOKEN::LESSTHAN:
@@ -122,7 +128,6 @@ void Parser::condition() {
       next();
       break;
     default:
-      std::cerr << "invalid conditional\n";
       next();
     }
     expression();
@@ -130,23 +135,20 @@ void Parser::condition() {
 }
 
 void Parser::expression() {
-  std::cout << "parsing expression\n";
-  if (current().token() == TOKEN::PLUS || current().token() == TOKEN::MINUS) {
+  if (current().type() == TOKEN::PLUS || current().type() == TOKEN::MINUS) {
     next();
   }
 
   term();
 
-  while (current().token() == TOKEN::PLUS ||
-         current().token() == TOKEN::MINUS) {
+  while (current().type() == TOKEN::PLUS || current().type() == TOKEN::MINUS) {
     next();
     term();
   }
 }
 
 void Parser::factor() {
-  std::cout << "parsing factor\n";
-  switch (current().token()) {
+  switch (current().type()) {
   case TOKEN::IDENT:
   case TOKEN::NUMBER:
     next();
@@ -160,11 +162,10 @@ void Parser::factor() {
 }
 
 void Parser::term() {
-  std::cout << "parsing term\n";
   factor();
 
-  while (current().token() == TOKEN::MULTIPLY ||
-         current().token() == TOKEN::DIVIDE) {
+  while (current().type() == TOKEN::MULTIPLY ||
+         current().type() == TOKEN::DIVIDE) {
     next();
     factor();
   }

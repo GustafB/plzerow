@@ -1,6 +1,6 @@
 #include "lexer.hpp"
-#include "lexeme.hpp"
 #include "token.hpp"
+#include "token_type.hpp"
 #include <algorithm>
 #include <cctype>
 #include <iostream>
@@ -18,9 +18,9 @@ Lexer::Lexer(const std::string &filename, std::vector<char> &&source)
     : _buffer{std::forward<std::vector<char>>(source)},
       _filesize{_buffer.size()}, _filename{filename} {}
 
-std::vector<Lexeme> Lexer::tokenize() {
-  std::vector<Lexeme> tokens;
-  Lexeme current{TOKEN::ENDFILE, 0, 1};
+std::vector<Token> Lexer::tokenize() {
+  std::vector<Token> tokens;
+  Token current{TOKEN::ENDFILE, 0, 1};
 
   do {
     tokens.push_back(next());
@@ -44,18 +44,18 @@ char Lexer::advance() {
   return c;
 }
 
-void Lexer::dump_lexeme(const Lexeme &lex) const {
+void Lexer::dump_lexeme(const Token &lex) const {
   std::cout << _filename << ":" << _linum << ":" << _token_line_pos << ": "
-            << static_cast<char>(lex.token()) << " '" << lex.literal() << "'"
+            << static_cast<char>(lex.type()) << " '" << lex.literal() << "'"
             << "\n";
 }
 
 void Lexer::parse_error(const std::string &err) const {
-  std::cerr << _filename << ":" << _linum << ":" << _token_line_pos << ": "
-            << " ERROR: " << err << "\n";
+  std::cerr << "[LEXICAL_ERROR] [" << _filename << ":" << _linum << ":"
+            << _token_line_pos << "] " << err << "\n";
 }
 
-Lexeme Lexer::parse_ident() {
+Token Lexer::parse_ident() {
   const auto pos = _token_start;
   while (isalnum(peek()) || peek() == '_') {
     advance();
@@ -84,10 +84,10 @@ Lexeme Lexer::parse_ident() {
     _token = TOKEN::IDENT;
   }
 
-  return Lexeme(_token, _literal, _linum, _token_line_pos);
+  return Token(_token, _literal, _linum, _token_line_pos);
 }
 
-Lexeme Lexer::parse_number() {
+Token Lexer::parse_number() {
   const auto pos = _token_start;
   std::string number;
   while (std::isdigit(peek()) || peek() == '\'') {
@@ -99,7 +99,7 @@ Lexeme Lexer::parse_number() {
                       [](char c) { return c == '\''; });
   _literal = number;
   _token = TOKEN::NUMBER;
-  return Lexeme(_token, _literal, _linum, _token_line_pos);
+  return Token(_token, _literal, _linum, _token_line_pos);
 }
 
 void Lexer::parse_comment() {
@@ -132,7 +132,7 @@ void Lexer::parse_whitespace() {
   }
 }
 
-Lexeme Lexer::next() {
+Token Lexer::next() {
   parse_whitespace();
 
   _literal = "";
@@ -151,43 +151,43 @@ Lexeme Lexer::next() {
   switch (c) {
   case '.':
     _token = TOKEN::DOT;
-    return Lexeme(_token, ".", _linum, _token_line_pos);
+    break;
   case '=':
     _token = TOKEN::EQUAL;
-    return Lexeme(_token, "=", _linum, _token_line_pos);
+    break;
   case ',':
     _token = TOKEN::COMMA;
-    return Lexeme(_token, ",", _linum, _token_line_pos);
+    break;
   case ';':
     _token = TOKEN::SEMICOLON;
-    return Lexeme(_token, ";", _linum, _token_line_pos);
+    break;
   case '#':
     _token = TOKEN::HASH;
-    return Lexeme(_token, "#", _linum, _token_line_pos);
+    break;
   case '<':
     _token = TOKEN::LESSTHAN;
-    return Lexeme(_token, "<", _linum, _token_line_pos);
+    break;
   case '>':
     _token = TOKEN::GREATERTHAN;
-    return Lexeme(_token, ">", _linum, _token_line_pos);
+    break;
   case '+':
     _token = TOKEN::PLUS;
-    return Lexeme(_token, "+", _linum, _token_line_pos);
+    break;
   case '-':
     _token = TOKEN::MINUS;
-    return Lexeme(_token, "-", _linum, _token_line_pos);
+    break;
   case '*':
     _token = TOKEN::MULTIPLY;
-    return Lexeme(_token, "*", _linum, _token_line_pos);
+    break;
   case '/':
     _token = TOKEN::DIVIDE;
-    return Lexeme(_token, "/", _linum, _token_line_pos);
+    break;
   case '(':
     _token = TOKEN::LPAREN;
-    return Lexeme(_token, "(", _linum, _token_line_pos);
+    break;
   case ')':
     _token = TOKEN::RPAREN;
-    return Lexeme(_token, ")", _linum, _token_line_pos);
+    break;
   case ':':
     if (peek() != '=') {
       parse_error("unexpected token");
@@ -195,16 +195,16 @@ Lexeme Lexer::next() {
     }
     _token = TOKEN::ASSIGN;
     advance();
-    return Lexeme(_token, ":=", _linum, _token_line_pos);
+    break;
   case '\0':
     _token = TOKEN::ENDFILE;
-    return Lexeme(_token, "", _linum, _token_line_pos);
+    break;
   default:
     parse_error("unexpected token");
     exit(1);
   }
 
-  return Lexeme(TOKEN::ENDFILE, "\0", _linum, _token_line_pos);
+  return Token(_token, "", _linum, _token_line_pos);
 }
 
 } // namespace plzerow

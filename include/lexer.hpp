@@ -1,7 +1,7 @@
 #pragma once
 
-#include "lexeme.hpp"
 #include "token.hpp"
+#include "token_type.hpp"
 #include <string>
 #include <vector>
 
@@ -34,11 +34,11 @@ public:
   Lexer &operator=(const Lexer &) = delete;
   ~Lexer() = default;
 
-  Lexeme next();
-  std::vector<Lexeme> tokenize();
+  Token next();
+  std::vector<Token> tokenize();
 
   // debugging
-  void dump_lexeme(const Lexeme &lex) const;
+  void dump_lexeme(const Token &lex) const;
   void parse_error(const std::string &err) const;
   bool at_end() const;
 
@@ -46,8 +46,8 @@ private:
   // parse expressions
   void parse_whitespace();
   void parse_comment();
-  Lexeme parse_ident();
-  Lexeme parse_number();
+  Token parse_ident();
+  Token parse_number();
 
   // helpers
   char peek() const;
