@@ -20,7 +20,7 @@ FetchContent_MakeAvailable(fmt)
 
 add_executable(plzerow
     src/main.cpp
-    src/filehandler.cpp
+    src/inputhandler.cpp
     src/lexeme.cpp
     src/lexer.cpp
     src/parser.cpp
@@ -28,6 +28,7 @@ add_executable(plzerow
     src/chunk.cpp
     src/value.cpp
     src/debugger.cpp
+    src/compiler.cpp
 )
 
 target_include_directories(plzerow PUBLIC

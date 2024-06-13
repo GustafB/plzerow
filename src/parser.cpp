@@ -1,5 +1,4 @@
 #include "parser.hpp"
-#include "lexer.hpp"
 #include "token.hpp"
 #include <iostream>
 #include <sstream>
@@ -11,36 +10,21 @@ void Parser::parse_error(const std::string &err) const {
             << ": " << err << "\n";
 }
 
-void Parser::next() {
-  _lexemes.emplace_back(_lexer.next());
-  std::cout << current() << "\n";
-}
+void Parser::next() { ++_current; }
 
-const Lexeme &Parser::current() const { return _lexemes.back(); }
-
-void Parser::read_tokens() {
-  Lexeme lex{TOKEN::ENDFILE, 0, 1};
-  do {
-    next();
-
-    std::cout << current() << "\n";
-
-  } while (!_lexer.at_end());
-}
+const Lexeme &Parser::current() const { return *_current; }
 
 void Parser::expect(TOKEN expected_token) {
   if (current().token() != expected_token) {
     std::stringstream err;
     err << "syntax error: expected token '" << static_cast<char>(expected_token)
         << "' but found '" << static_cast<char>(current().token()) << "'\n";
-
-    _lexer.parse_error(err.str());
+    parse_error(err.str());
   }
   next();
 }
 
-void Parser::run() {
-  next();
+void Parser::parse() {
   block();
   expect(TOKEN::DOT);
 }

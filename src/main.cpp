@@ -28,23 +28,34 @@
 
 using namespace plzerow;
 
-void help() { std::cout << "usage: pl0 file.pl0\n"; }
+void help() { std::cout << "usage: pl0 [file.pl0]\n"; }
 
-int main() {
-  Chunk c;
-  c.append(OP_CODE::OP_CONSTANT, Value{100}, 123);
-  c.append(OP_CODE::OP_CONSTANT, Value{100}, 123);
-  c.append(OP_CODE::OP_ADD, 1000);
-  c.append(OP_CODE::OP_CONSTANT, Value{2}, 1000);
-  c.append(OP_CODE::OP_MULTIPLY, 1000);
-  c.append(OP_CODE::OP_CONSTANT, Value{100}, 1000);
-  c.append(OP_CODE::OP_SUBTRACT, 1000);
-  c.append(OP_CODE::OP_CONSTANT, Value{300}, 1000);
-  c.append(OP_CODE::OP_ADD, 1000);
-  c.append(OP_CODE::OP_CONSTANT, Value{2}, 1000);
-  c.append(OP_CODE::OP_DIVIDE, 1000);
-  c.append(OP_CODE::OP_RETURN, 1000);
+int main(int argc, char *argv[]) {
+  VM vm;
+  if (argc == 1) {
+    vm.repl();
+  } else if (argc == 2) {
+    const std::string filename{argv[1]};
+    vm.runfile(filename);
+  } else {
+    help();
+    exit(1);
+  }
 
-  VM vm(std::move(c));
-  vm.run();
+  // Chunk c;
+  // c.append(OP_CODE::OP_CONSTANT, Value{100}, 123);
+  // c.append(OP_CODE::OP_CONSTANT, Value{100}, 123);
+  // c.append(OP_CODE::OP_ADD, 1000);
+  // c.append(OP_CODE::OP_CONSTANT, Value{2}, 1000);
+  // c.append(OP_CODE::OP_MULTIPLY, 1000);
+  // c.append(OP_CODE::OP_CONSTANT, Value{100}, 1000);
+  // c.append(OP_CODE::OP_SUBTRACT, 1000);
+  // c.append(OP_CODE::OP_CONSTANT, Value{300}, 1000);
+  // c.append(OP_CODE::OP_ADD, 1000);
+  // c.append(OP_CODE::OP_CONSTANT, Value{2}, 1000);
+  // c.append(OP_CODE::OP_DIVIDE, 1000);
+  // c.append(OP_CODE::OP_RETURN, 1000);
+
+  // VM vm(std::move(c));
+  // vm.run();
 }

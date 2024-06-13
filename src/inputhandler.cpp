@@ -1,25 +1,11 @@
-#include "filehandler.hpp"
+#include "inputhandler.hpp"
 #include <fstream>
 #include <iostream>
+#include <istream>
 
 namespace plzerow {
-
-bool FileHandler::validate(const std::string &filename) const {
-  const std::string file_extension = ".pl0";
-  if (filename.length() >= file_extension.size()) {
-    if (filename.rfind(file_extension) !=
-        (filename.length() - file_extension.length())) {
-      return false;
-    }
-  }
-  return true;
-}
-
-std::vector<char> FileHandler::read_file(const std::string &filename) const {
-  if (!validate(filename)) {
-    std::cerr << "file is not of the right type\n";
-    exit(1);
-  }
+std::vector<char>
+InputHandler::read_from_file(const std::string &filename) const {
   auto filestream = std::ifstream(filename, std::ios::binary | std::ios::ate);
 
   if (!filestream) {
@@ -47,6 +33,12 @@ std::vector<char> FileHandler::read_file(const std::string &filename) const {
   std::cout << "Filename: " << filename << "\nFile Size: " << filesize << "\n";
 
   return buffer;
+}
+
+std::vector<char> InputHandler::read_from_repl(std::istream &is) const {
+  std::string current_line;
+  std::getline(is, current_line);
+  return {current_line.begin(), current_line.end()};
 }
 
 } // namespace plzerow

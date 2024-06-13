@@ -4,6 +4,7 @@
 #include "value.hpp"
 #include <functional>
 #include <iostream>
+#include <string>
 #include <variant>
 
 namespace {
@@ -20,6 +21,7 @@ void dump_stack(std::stack<plzerow::Value> stack) {
 }
 
 auto Negate = [](auto &&arg) -> plzerow::Value { return -arg; };
+
 auto BinaryOp = [](const plzerow::Value &lhs, const plzerow::Value &rhs,
                    std::function<double(double, double)> f) -> plzerow::Value {
   auto lhs_v = std::visit(plzerow::Number, lhs);
@@ -87,6 +89,19 @@ InterpretResult VM::run() {
   }
 
   return InterpretResult::OK;
+}
+
+void VM::repl() {
+  for (;;) {
+    std::cout << "> ";
+    auto source_code = _input_handler.read_from_repl(std::cin);
+    _compiler.compile(std::move(source_code));
+  }
+}
+
+void VM::runfile(const std::string &filename) {
+  auto source_code = _input_handler.read_from_file(filename);
+  _compiler.compile(std::move(source_code));
 }
 
 } // namespace plzerow

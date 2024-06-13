@@ -1,6 +1,8 @@
 #pragma once
 
 #include "chunk.hpp"
+#include "compiler.hpp"
+#include "inputhandler.hpp"
 #include "value.hpp"
 #include <cstdint>
 #include <stack>
@@ -23,10 +25,14 @@ enum class InterpretResult { OK, COMPILE_ERROR, RUNTIME_ERROR };
 
 class VM {
 public:
+  VM() = default;
   VM(Chunk &&chunk) : _chunk{std::forward<Chunk>(chunk)} {
     _ip = _chunk.cbegin();
   };
   InterpretResult run();
+
+  void repl();
+  void runfile(const std::string &filename);
 
 private:
   InstructionPointer next();
@@ -37,6 +43,8 @@ private:
   InstructionPointer _ip;
   Chunk _chunk;
   std::stack<Value> _stack;
+  Compiler _compiler;
+  InputHandler _input_handler;
 };
 
 } // namespace plzerow

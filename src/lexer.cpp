@@ -1,4 +1,6 @@
 #include "lexer.hpp"
+#include "lexeme.hpp"
+#include "token.hpp"
 #include <algorithm>
 #include <cctype>
 #include <iostream>
@@ -8,10 +10,23 @@
 
 namespace plzerow {
 
-void Lexer::read_file(const std::string &filename) {
-  _buffer = _filehandler.read_file(filename);
-  _filesize = _buffer.size();
-  _filename = filename;
+Lexer::Lexer(std::vector<char> &&source)
+    : _buffer{std::forward<std::vector<char>>(source)},
+      _filesize{_buffer.size()}, _filename{"repl"} {}
+
+Lexer::Lexer(const std::string &filename, std::vector<char> &&source)
+    : _buffer{std::forward<std::vector<char>>(source)},
+      _filesize{_buffer.size()}, _filename{filename} {}
+
+std::vector<Lexeme> Lexer::tokenize() {
+  std::vector<Lexeme> tokens;
+  Lexeme current{TOKEN::ENDFILE, 0, 1};
+
+  do {
+    tokens.push_back(next());
+  } while (!at_end());
+
+  return tokens;
 }
 
 char Lexer::peek_next() const {

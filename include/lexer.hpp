@@ -1,6 +1,5 @@
 #pragma once
 
-#include "filehandler.hpp"
 #include "lexeme.hpp"
 #include "token.hpp"
 #include <string>
@@ -21,10 +20,14 @@ constexpr char kw_for[] = "for";
 constexpr char kw_while[] = "while";
 constexpr char kw_procedure[] = "procedure";
 constexpr char kw_end[] = "end";
+constexpr char kw_print[] = "print";
 
 class Lexer {
 public:
   Lexer() = default;
+  Lexer(const std::string &filename, std::vector<char> &&source);
+  Lexer(std::vector<char> &&source);
+
   Lexer(Lexer &&) noexcept = default;
   Lexer &operator=(Lexer &&) noexcept = default;
   Lexer(const Lexer &) = delete;
@@ -32,7 +35,7 @@ public:
   ~Lexer() = default;
 
   Lexeme next();
-  void read_file(const std::string &filename);
+  std::vector<Lexeme> tokenize();
 
   // debugging
   void dump_lexeme(const Lexeme &lex) const;
@@ -65,9 +68,6 @@ private:
   std::size_t _pos = 0;
   std::size_t _filesize = 0;
   std::string _filename;
-
-  // file reader
-  FileHandler _filehandler{".pl0"};
 };
 
 } // namespace plzerow
