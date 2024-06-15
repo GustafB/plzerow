@@ -5,17 +5,26 @@
 
 namespace plzerow {
 
+Parser::Parser()
+    : _next_token(
+          []() { return plzerow::Token(plzerow::TOKEN::ENDFILE, 0, 0); }),
+      _current{_next_token()}, _previous{TOKEN::ENDFILE, 0, 0} {}
+
+Parser::Parser(std::function<Token()> next_token)
+    : _next_token(next_token), _current{_next_token()},
+      _previous{TOKEN::ENDFILE, 0, 0} {}
+
 void Parser::parse_error(const std::string &err) const {
   std::cerr << "[PARSE_ERROR] [" << current().linum() << ":"
             << current().token_start() << "] " << err << "\n";
 }
 
 void Parser::next() {
-  std::cout << *_current << "\n";
-  ++_current;
+  _previous = _current;
+  _current = _next_token();
 }
 
-const Token &Parser::current() const { return *_current; }
+const Token &Parser::current() const { return _current; }
 
 void Parser::expect(TOKEN expected_token) {
   if (current().type() != expected_token) {

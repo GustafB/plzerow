@@ -6,8 +6,7 @@ namespace plzerow {
 
 CompilerResult Compiler::compile(std::vector<char> &&source_code) {
   _lexer = Lexer(std::forward<std::vector<char>>(source_code));
-  auto tokens = _lexer.tokenize();
-  _parser = Parser(std::move(tokens));
+  _parser = Parser([this]() { return _lexer.next(); });
   _parser.parse();
   return CompilerResult::OK;
 }

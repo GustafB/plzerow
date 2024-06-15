@@ -1,13 +1,14 @@
 #pragma once
 
 #include "token.hpp"
-#include <iostream>
+#include <functional>
 #include <vector>
 
 namespace {
 
 using Tokens = std::vector<plzerow::Token>;
 using TokenIterator = Tokens::const_iterator;
+using TokenGenerator = std::function<plzerow::Token()>;
 
 } // namespace
 
@@ -15,12 +16,8 @@ namespace plzerow {
 
 class Parser {
 public:
-  Parser() = default;
-  Parser(std::vector<Token> &&tokens)
-      : _tokens{std::forward<std::vector<Token>>(tokens)},
-        _current{_tokens.cbegin()} {
-    std::cout << "total tokens: " << _tokens.size() << "\n";
-  };
+  Parser();
+  Parser(TokenGenerator next_token);
 
   void parse();
 
@@ -38,8 +35,9 @@ private:
 
   void parse_error(const std::string &err) const;
 
-  Tokens _tokens;
-  TokenIterator _current;
+  std::function<Token()> _next_token;
+  Token _current;
+  Token _previous;
 };
 
 } // namespace plzerow

@@ -31,6 +31,7 @@ enum class TOKEN {
   LPAREN = '(',
   RPAREN = ')',
   ENDFILE = '\0',
+  ERROR,
   UNKNOWN,
 };
 

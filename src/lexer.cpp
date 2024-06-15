@@ -1,4 +1,5 @@
 #include "lexer.hpp"
+#include "fmt/core.h"
 #include "token.hpp"
 #include "token_type.hpp"
 #include <algorithm>
@@ -191,7 +192,8 @@ Token Lexer::next() {
   case ':':
     if (peek() != '=') {
       parse_error("unexpected token");
-      exit(1);
+      _token = TOKEN::ERROR;
+      _literal = fmt::format("unexpected token {}", c);
     }
     _token = TOKEN::ASSIGN;
     advance();
@@ -201,10 +203,11 @@ Token Lexer::next() {
     break;
   default:
     parse_error("unexpected token");
-    exit(1);
+    _token = TOKEN::ERROR;
+    _literal = fmt::format("unexpected token {}", c);
   }
 
-  return Token(_token, "", _linum, _token_line_pos);
+  return Token(_token, _literal, _linum, _token_line_pos);
 }
 
 } // namespace plzerow
