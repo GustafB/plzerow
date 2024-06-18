@@ -2,7 +2,6 @@
 
 #include "chunk.hpp"
 #include "compiler.hpp"
-#include "inputhandler.hpp"
 #include "value.hpp"
 #include <cstdint>
 #include <stack>
@@ -44,7 +43,6 @@ private:
   Chunk _chunk;
   std::stack<Value> _stack;
   Compiler _compiler;
-  InputHandler _input_handler;
 };
 
 } // namespace plzerow

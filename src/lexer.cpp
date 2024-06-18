@@ -191,7 +191,6 @@ Token Lexer::next() {
     break;
   case ':':
     if (peek() != '=') {
-      parse_error("unexpected token");
       _token = TOKEN::ERROR;
       _literal = fmt::format("unexpected token {}", c);
     }
@@ -202,7 +201,6 @@ Token Lexer::next() {
     _token = TOKEN::ENDFILE;
     break;
   default:
-    parse_error("unexpected token");
     _token = TOKEN::ERROR;
     _literal = fmt::format("unexpected token {}", c);
   }

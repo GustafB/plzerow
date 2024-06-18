@@ -17,12 +17,12 @@ namespace plzerow {
 class Parser {
 public:
   Parser();
-  Parser(TokenGenerator next_token);
-
+  Parser(TokenGenerator &&next_token);
   void parse();
 
 private:
   const Token &current() const;
+  const Token &previous() const;
   void expect(TOKEN expected_token);
   void next();
 

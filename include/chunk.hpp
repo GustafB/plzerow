@@ -12,7 +12,7 @@ using LinumContainer = std::vector<LineCounter>;
 using InstructionPointer = InstructionContainer::const_iterator;
 
 class Chunk {
-  friend std::size_t disassemble(const std::string &name, const Chunk &chunk);
+  friend class Debugger;
 
 public:
   std::uint8_t append(std::uint8_t instruction, std::size_t linum);

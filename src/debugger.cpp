@@ -37,7 +37,8 @@ std::size_t constant_long_instruction(const std::string &name,
 
 namespace plzerow {
 
-std::size_t disassemble_instruction(std::size_t offset, const Chunk &chunk) {
+std::size_t Debugger::disassemble_instruction(std::size_t offset,
+                                              const Chunk &chunk) {
   std::cout << fmt::format("{:04} ", offset);
   if (offset > 0 && chunk.linum(offset) == chunk.linum(offset - 1))
     std::cout << "   | ";
@@ -68,7 +69,7 @@ std::size_t disassemble_instruction(std::size_t offset, const Chunk &chunk) {
   }
 }
 
-std::size_t disassemble(const std::string &name, const Chunk &chunk) {
+std::size_t Debugger::disassemble(const std::string &name, const Chunk &chunk) {
   std::cout << "constants = " << chunk._constants.values().size()
             << " instructions = " << chunk._instructions.size()
             << " linums = " << chunk._linums.size() << "\n";

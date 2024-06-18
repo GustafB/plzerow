@@ -1,6 +1,7 @@
 #include "virtual_machine.hpp"
 #include "chunk.hpp"
 #include "debugger.hpp"
+#include "inputhandler.hpp"
 #include "value.hpp"
 #include <functional>
 #include <iostream>
@@ -52,7 +53,7 @@ Value VM::pop_stack() {
 InterpretResult VM::run() {
   for (;;) {
     dump_stack(_stack);
-    disassemble_instruction(_ip - _chunk.cbegin(), _chunk);
+    Debugger::disassemble_instruction(_ip - _chunk.cbegin(), _chunk);
     std::uint8_t instruction;
     switch (instruction = *next()) {
     case OP_CONSTANT:
@@ -94,13 +95,13 @@ InterpretResult VM::run() {
 void VM::repl() {
   for (;;) {
     std::cout << "> ";
-    auto source_code = _input_handler.read_from_repl(std::cin);
+    auto source_code = InputHandler::read_from_repl(std::cin);
     _compiler.compile(std::move(source_code));
   }
 }
 
 void VM::runfile(const std::string &filename) {
-  auto source_code = _input_handler.read_from_file(filename);
+  auto source_code = InputHandler::read_from_file(filename);
   _compiler.compile(std::move(source_code));
 }
 

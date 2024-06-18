@@ -4,8 +4,8 @@
 #include <istream>
 
 namespace plzerow {
-std::vector<char>
-InputHandler::read_from_file(const std::string &filename) const {
+
+std::vector<char> InputHandler::read_from_file(const std::string &filename) {
   auto filestream = std::ifstream(filename, std::ios::binary | std::ios::ate);
 
   if (!filestream) {
@@ -35,7 +35,7 @@ InputHandler::read_from_file(const std::string &filename) const {
   return buffer;
 }
 
-std::vector<char> InputHandler::read_from_repl(std::istream &is) const {
+std::vector<char> InputHandler::read_from_repl(std::istream &is) {
   std::string current_line;
   std::getline(is, current_line);
   return {current_line.begin(), current_line.end()};
