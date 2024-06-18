@@ -1,29 +1,29 @@
+import sys
+
 ast_nodes = [
     "Block     : std::vector<std::unique_ptr<ASTNode>> constDecls | std::vector<std::unique_ptr<ASTNode>> varDecls | std::vector<std::unique_ptr<ASTNode>> procedures | std::unique_ptr<ASTNode> statement",
     "ConstDecl : std::string name | int value",
     "VarDecl   : std::string name",
     "Procedure : std::string name | std::unique_ptr<ASTNode> block",
-    "Statement : std::unique_ptr<ASTNode> statement",
+    "Statement : std::vector<std::unique_ptr<ASTNode>> statement",
     "Assignment: std::string name | std::unique_ptr<ASTNode> expression",
     "Call      : std::string name",
-    "BeginEnd  : std::vector<std::unique_ptr<ASTNode>> statements",
+    "Begin     : std::unique_ptr<ASTNode> statement | std::vector<std::unique_ptr<ASTNode>> statements",
     "If        : std::unique_ptr<ASTNode> condition | std::unique_ptr<ASTNode> statement",
     "While     : std::unique_ptr<ASTNode> condition | std::unique_ptr<ASTNode> statement",
-    "Condition : std::unique_ptr<ASTNode> condition",
+    "Condition : std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right | char op",
     "OddCondition: std::unique_ptr<ASTNode> expression",
-    "Comparison: std::string op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
+    "Comparison: std::optional<char> op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
     "Expression: std::unique_ptr<ASTNode> term | std::vector<std::pair<std::string, std::unique_ptr<ASTNode>>> terms",
-    "Term      : std::unique_ptr<ASTNode> factor | std::vector<std::pair<std::string, std::unique_ptr<ASTNode>>> factors",
-    "Factor    : std::variant<std::string, int, std::unique_ptr<ASTNode>> factor",
+    "Term      : std::unique_ptr<ASTNode> left | std::vector<std::pair<char, std::unique_ptr<ASTNode>>> right",
+    "Factor    : std::unique_ptr<ASTNode> value",
     "Program   : std::unique_ptr<ASTNode> block",
 ]
 
 
-# Function to generate header file content
 def generate_header(nodes):
     header = """
-#ifndef AST_NODES_H
-#define AST_NODES_H
+#pragma once
 
 #include <memory>
 #include <string>
@@ -43,13 +43,11 @@ class ASTNode;
         class_name = parts[0].strip()
         node_classes.append(class_name)
 
-    # Generate forward declarations for all node classes
     for class_name in node_classes:
         header += f"class {class_name};\n"
 
     header += "\n"
 
-    # Generate structs for each node type
     for node in nodes:
         parts = node.split(":", 1)
         struct_name = parts[0].strip()
@@ -57,7 +55,6 @@ class ASTNode;
 
         header += f"class {struct_name} {{\n"
 
-        # Fields
         for field in fields:
             try:
                 ftype, fname = field.rsplit(" ", 1)
@@ -65,7 +62,6 @@ class ASTNode;
             except ValueError:
                 print(f"Error parsing field '{field}' in class '{struct_name}'")
 
-        # Constructor
         header += "public:\n"
         header += "    " + struct_name + "("
         header += ", ".join(
@@ -84,7 +80,6 @@ class ASTNode;
 
         header += "};\n\n"
 
-    # Generate ASTNode class definition
     header += """
 class ASTNode {
 public:
@@ -108,11 +103,9 @@ template <typename Visitor> auto ASTNode::accept(Visitor &&visitor) const {
 } // namespace plzerow
 """
 
-    header += "#endif // AST_NODES_H\n"
     return header
 
 
-# Function to generate source file content
 def generate_source(nodes):
     source = """
 #include "ast_nodes.hpp"
@@ -127,14 +120,24 @@ ASTNode::ASTNode(TOKEN token_type, std::size_t linum, std::size_t column)
     return source
 
 
-# Write header file
-header_content = generate_header(ast_nodes)
-with open("ast_nodes.hpp", "w") as header_file:
-    header_file.write(header_content)
+def write_files(include_dir, src_dir):
+    header_content = generate_header(ast_nodes)
+    with open(f"{include_dir}/ast_nodes.hpp", "w") as header_file:
+        header_file.write(header_content)
 
-# Write source file
-source_content = generate_source(ast_nodes)
-with open("ast_nodes.cpp", "w") as source_file:
-    source_file.write(source_content)
+    source_content = generate_source(ast_nodes)
+    with open(f"{src_dir}/ast_nodes.cpp", "w") as source_file:
+        source_file.write(source_content)
 
-print("Header and source files generated successfully.")
+    print("Header and source files generated successfully.")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("Usage: script.py <include_dir> <src_dir>")
+        sys.exit(1)
+
+    include_directory = sys.argv[1]
+    source_directory = sys.argv[2]
+
+    write_files(include_directory, source_directory)
