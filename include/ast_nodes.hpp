@@ -11,150 +11,172 @@ namespace plzerow {
 
 class ASTNode;
 
-class Block;
-class ConstDecl;
-class VarDecl;
-class Procedure;
-class Statement;
-class Assignment;
-class Call;
-class Begin;
-class If;
-class While;
-class Condition;
-class OddCondition;
-class Comparison;
-class Expression;
-class Term;
-class Factor;
-class Program;
+using ExprContainer = std::vector<std::pair<TOKEN, std::unique_ptr<ASTNode>>>;
+using NodeContainer = std::vector<std::unique_ptr<ASTNode>>;
 
-class Block {
-    std::vector<std::unique_ptr<ASTNode>> _constDecls;
-    std::vector<std::unique_ptr<ASTNode>> _varDecls;
-    std::vector<std::unique_ptr<ASTNode>> _procedures;
+struct Block;
+struct ConstDecl;
+struct VarDecl;
+struct Procedure;
+struct Statement;
+struct Assignment;
+struct Call;
+struct Begin;
+struct If;
+struct While;
+struct Condition;
+struct OddCondition;
+struct Comparison;
+struct Expression;
+struct Term;
+struct Factor;
+struct Program;
+
+struct Block {
+    Block(NodeContainer constDecls, NodeContainer varDecls, NodeContainer procedures, std::unique_ptr<ASTNode> statement) : _constDecls(std::move(constDecls)), _varDecls(std::move(varDecls)), _procedures(std::move(procedures)), _statement(std::move(statement)) {}
+    Block(Block&&) = default;
+    Block& operator=(Block&&) = default;
+    NodeContainer _constDecls;
+    NodeContainer _varDecls;
+    NodeContainer _procedures;
     std::unique_ptr<ASTNode> _statement;
-public:
-    Block(std::vector<std::unique_ptr<ASTNode>> constDecls, std::vector<std::unique_ptr<ASTNode>> varDecls, std::vector<std::unique_ptr<ASTNode>> procedures, std::unique_ptr<ASTNode> statement) : _constDecls(std::move(constDecls)), _varDecls(std::move(varDecls)), _procedures(std::move(procedures)), _statement(std::move(statement)) {}
 };
 
-class ConstDecl {
+struct ConstDecl {
+    ConstDecl(std::string name, int value) : _name(name), _value(value) {}
+    ConstDecl(ConstDecl&&) = default;
+    ConstDecl& operator=(ConstDecl&&) = default;
     std::string _name;
     int _value;
-public:
-    ConstDecl(std::string name, int value) : _name(name), _value(value) {}
 };
 
-class VarDecl {
-    std::string _name;
-public:
+struct VarDecl {
     VarDecl(std::string name) : _name(name) {}
+    VarDecl(VarDecl&&) = default;
+    VarDecl& operator=(VarDecl&&) = default;
+    std::string _name;
 };
 
-class Procedure {
-    std::string _name;
-    std::unique_ptr<ASTNode> _block;
-public:
+struct Procedure {
     Procedure(std::string name, std::unique_ptr<ASTNode> block) : _name(name), _block(std::move(block)) {}
-};
-
-class Statement {
-    std::vector<std::unique_ptr<ASTNode>> _statement;
-public:
-    Statement(std::vector<std::unique_ptr<ASTNode>> statement) : _statement(std::move(statement)) {}
-};
-
-class Assignment {
+    Procedure(Procedure&&) = default;
+    Procedure& operator=(Procedure&&) = default;
     std::string _name;
-    std::unique_ptr<ASTNode> _expression;
-public:
-    Assignment(std::string name, std::unique_ptr<ASTNode> expression) : _name(name), _expression(std::move(expression)) {}
-};
-
-class Call {
-    std::string _name;
-public:
-    Call(std::string name) : _name(name) {}
-};
-
-class Begin {
-    std::unique_ptr<ASTNode> _statement;
-    std::vector<std::unique_ptr<ASTNode>> _statements;
-public:
-    Begin(std::unique_ptr<ASTNode> statement, std::vector<std::unique_ptr<ASTNode>> statements) : _statement(std::move(statement)), _statements(std::move(statements)) {}
-};
-
-class If {
-    std::unique_ptr<ASTNode> _condition;
-    std::unique_ptr<ASTNode> _statement;
-public:
-    If(std::unique_ptr<ASTNode> condition, std::unique_ptr<ASTNode> statement) : _condition(std::move(condition)), _statement(std::move(statement)) {}
-};
-
-class While {
-    std::unique_ptr<ASTNode> _condition;
-    std::unique_ptr<ASTNode> _statement;
-public:
-    While(std::unique_ptr<ASTNode> condition, std::unique_ptr<ASTNode> statement) : _condition(std::move(condition)), _statement(std::move(statement)) {}
-};
-
-class Condition {
-    std::unique_ptr<ASTNode> _left;
-    std::unique_ptr<ASTNode> _right;
-    char _op;
-public:
-    Condition(std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right, char op) : _left(std::move(left)), _right(std::move(right)), _op(op) {}
-};
-
-class OddCondition {
-    std::unique_ptr<ASTNode> _expression;
-public:
-    OddCondition(std::unique_ptr<ASTNode> expression) : _expression(std::move(expression)) {}
-};
-
-class Comparison {
-    std::optional<char> _op;
-    std::unique_ptr<ASTNode> _left;
-    std::unique_ptr<ASTNode> _right;
-public:
-    Comparison(std::optional<char> op, std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right) : _op(op), _left(std::move(left)), _right(std::move(right)) {}
-};
-
-class Expression {
-    std::unique_ptr<ASTNode> _term;
-    std::vector<std::pair<std::string, std::unique_ptr<ASTNode>>> _terms;
-public:
-    Expression(std::unique_ptr<ASTNode> term, std::vector<std::pair<std::string, std::unique_ptr<ASTNode>>> terms) : _term(std::move(term)), _terms(std::move(terms)) {}
-};
-
-class Term {
-    std::unique_ptr<ASTNode> _left;
-    std::vector<std::pair<char, std::unique_ptr<ASTNode>>> _right;
-public:
-    Term(std::unique_ptr<ASTNode> left, std::vector<std::pair<char, std::unique_ptr<ASTNode>>> right) : _left(std::move(left)), _right(std::move(right)) {}
-};
-
-class Factor {
-    std::unique_ptr<ASTNode> _value;
-public:
-    Factor(std::unique_ptr<ASTNode> value) : _value(std::move(value)) {}
-};
-
-class Program {
     std::unique_ptr<ASTNode> _block;
-public:
+};
+
+struct Statement {
+    Statement(std::unique_ptr<ASTNode> statement) : _statement(std::move(statement)) {}
+    Statement(Statement&&) = default;
+    Statement& operator=(Statement&&) = default;
+    std::unique_ptr<ASTNode> _statement;
+};
+
+struct Assignment {
+    Assignment(std::string name, std::unique_ptr<ASTNode> expression) : _name(name), _expression(std::move(expression)) {}
+    Assignment(Assignment&&) = default;
+    Assignment& operator=(Assignment&&) = default;
+    std::string _name;
+    std::unique_ptr<ASTNode> _expression;
+};
+
+struct Call {
+    Call(std::string name) : _name(name) {}
+    Call(Call&&) = default;
+    Call& operator=(Call&&) = default;
+    std::string _name;
+};
+
+struct Begin {
+    Begin(std::unique_ptr<ASTNode> statement, NodeContainer statements) : _statement(std::move(statement)), _statements(std::move(statements)) {}
+    Begin(Begin&&) = default;
+    Begin& operator=(Begin&&) = default;
+    std::unique_ptr<ASTNode> _statement;
+    NodeContainer _statements;
+};
+
+struct If {
+    If(std::unique_ptr<ASTNode> condition, std::unique_ptr<ASTNode> statement) : _condition(std::move(condition)), _statement(std::move(statement)) {}
+    If(If&&) = default;
+    If& operator=(If&&) = default;
+    std::unique_ptr<ASTNode> _condition;
+    std::unique_ptr<ASTNode> _statement;
+};
+
+struct While {
+    While(std::unique_ptr<ASTNode> condition, std::unique_ptr<ASTNode> statement) : _condition(std::move(condition)), _statement(std::move(statement)) {}
+    While(While&&) = default;
+    While& operator=(While&&) = default;
+    std::unique_ptr<ASTNode> _condition;
+    std::unique_ptr<ASTNode> _statement;
+};
+
+struct Condition {
+    Condition(TOKEN op, std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right) : _op(op), _left(std::move(left)), _right(std::move(right)) {}
+    Condition(Condition&&) = default;
+    Condition& operator=(Condition&&) = default;
+    TOKEN _op;
+    std::unique_ptr<ASTNode> _left;
+    std::unique_ptr<ASTNode> _right;
+};
+
+struct OddCondition {
+    OddCondition(std::unique_ptr<ASTNode> expression) : _expression(std::move(expression)) {}
+    OddCondition(OddCondition&&) = default;
+    OddCondition& operator=(OddCondition&&) = default;
+    std::unique_ptr<ASTNode> _expression;
+};
+
+struct Comparison {
+    Comparison(TOKEN op, std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right) : _op(op), _left(std::move(left)), _right(std::move(right)) {}
+    Comparison(Comparison&&) = default;
+    Comparison& operator=(Comparison&&) = default;
+    TOKEN _op;
+    std::unique_ptr<ASTNode> _left;
+    std::unique_ptr<ASTNode> _right;
+};
+
+struct Expression {
+    Expression(TOKEN op, std::unique_ptr<ASTNode> term, ExprContainer terms) : _op(op), _term(std::move(term)), _terms(std::move(terms)) {}
+    Expression(Expression&&) = default;
+    Expression& operator=(Expression&&) = default;
+    TOKEN _op;
+    std::unique_ptr<ASTNode> _term;
+    ExprContainer _terms;
+};
+
+struct Term {
+    Term(TOKEN op, std::unique_ptr<ASTNode> left, ExprContainer right) : _op(op), _left(std::move(left)), _right(std::move(right)) {}
+    Term(Term&&) = default;
+    Term& operator=(Term&&) = default;
+    TOKEN _op;
+    std::unique_ptr<ASTNode> _left;
+    ExprContainer _right;
+};
+
+struct Factor {
+    Factor(std::unique_ptr<ASTNode> value) : _value(std::move(value)) {}
+    Factor(Factor&&) = default;
+    Factor& operator=(Factor&&) = default;
+    std::unique_ptr<ASTNode> _value;
+};
+
+struct Program {
     Program(std::unique_ptr<ASTNode> block) : _block(std::move(block)) {}
+    Program(Program&&) = default;
+    Program& operator=(Program&&) = default;
+    std::unique_ptr<ASTNode> _block;
 };
 
 
 class ASTNode {
 public:
-    ASTNode(TOKEN token_type, std::size_t linum, std::size_t column);
+    template <typename T>
+    ASTNode(std::size_t linum, std::size_t column, T &&value);
     template <typename Visitor> auto accept(Visitor &&visitor) const;
 
-    TOKEN _type;
-    std::size_t _column;
     std::size_t _linum;
+    std::size_t _column;
     std::variant<
 Block,
         ConstDecl,
@@ -176,8 +198,21 @@ Block,
     > _value;
 };
 
+template <typename T>
+ASTNode::ASTNode(std::size_t linum,
+                 std::size_t column, T &&value)
+     :_linum(linum), _column(column),
+      _value(std::move(value)) {}
+
 template <typename Visitor> auto ASTNode::accept(Visitor &&visitor) const {
     return std::visit(std::forward<Visitor>(visitor), _value);
+}
+
+template <typename T, typename... Args>
+std::unique_ptr<ASTNode> make_ast_node(std::size_t linum,
+                                       std::size_t column, Args &&...args) {
+  return std::make_unique<ASTNode>(linum, column,
+                                   T{std::forward<Args>(args)...});
 }
 
 } // namespace plzerow

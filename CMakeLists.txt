@@ -29,12 +29,13 @@ add_executable(plzerow
     src/value.cpp
     src/debugger.cpp
     src/compiler.cpp
+    src/ast_nodes.cpp
 )
 
 target_include_directories(plzerow PUBLIC
     ${PROJECT_SOURCE_DIR}/include
 )
 
-target_compile_options(plzerow PRIVATE -Wall -Wextra -Wpedantic -Wno-switch)
+target_compile_options(plzerow PRIVATE -Wall -Wextra -Wpedantic -Wno-switch -Wno-unused-variable)
 
 target_link_libraries(plzerow PRIVATE fmt::fmt)

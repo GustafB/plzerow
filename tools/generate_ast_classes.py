@@ -1,21 +1,21 @@
 import sys
 
 ast_nodes = [
-    "Block     : std::vector<std::unique_ptr<ASTNode>> constDecls | std::vector<std::unique_ptr<ASTNode>> varDecls | std::vector<std::unique_ptr<ASTNode>> procedures | std::unique_ptr<ASTNode> statement",
+    "Block     : NodeContainer constDecls | NodeContainer varDecls | NodeContainer procedures | std::unique_ptr<ASTNode> statement",
     "ConstDecl : std::string name | int value",
     "VarDecl   : std::string name",
     "Procedure : std::string name | std::unique_ptr<ASTNode> block",
-    "Statement : std::vector<std::unique_ptr<ASTNode>> statement",
+    "Statement : std::unique_ptr<ASTNode> statement",
     "Assignment: std::string name | std::unique_ptr<ASTNode> expression",
     "Call      : std::string name",
-    "Begin     : std::unique_ptr<ASTNode> statement | std::vector<std::unique_ptr<ASTNode>> statements",
+    "Begin     : std::unique_ptr<ASTNode> statement | NodeContainer statements",
     "If        : std::unique_ptr<ASTNode> condition | std::unique_ptr<ASTNode> statement",
     "While     : std::unique_ptr<ASTNode> condition | std::unique_ptr<ASTNode> statement",
-    "Condition : std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right | char op",
+    "Condition : TOKEN op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
     "OddCondition: std::unique_ptr<ASTNode> expression",
-    "Comparison: std::optional<char> op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
-    "Expression: std::unique_ptr<ASTNode> term | std::vector<std::pair<std::string, std::unique_ptr<ASTNode>>> terms",
-    "Term      : std::unique_ptr<ASTNode> left | std::vector<std::pair<char, std::unique_ptr<ASTNode>>> right",
+    "Comparison: TOKEN op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
+    "Expression: TOKEN op | std::unique_ptr<ASTNode> term | ExprContainer terms",
+    "Term      : TOKEN op | std::unique_ptr<ASTNode> left | ExprContainer right",
     "Factor    : std::unique_ptr<ASTNode> value",
     "Program   : std::unique_ptr<ASTNode> block",
 ]
@@ -35,7 +35,16 @@ namespace plzerow {
 
 class ASTNode;
 
+using ExprContainer = std::vector<std::pair<TOKEN, std::unique_ptr<ASTNode>>>;
+using NodeContainer = std::vector<std::unique_ptr<ASTNode>>;
+
 """
+
+    def needs_move(type):
+        for t in ("std::unique_ptr", "NodeContainer", "ExprContainer"):
+            if t in type:
+                return True
+        return False
 
     node_classes = []
     for node in nodes:
@@ -44,7 +53,7 @@ class ASTNode;
         node_classes.append(class_name)
 
     for class_name in node_classes:
-        header += f"class {class_name};\n"
+        header += f"struct {class_name};\n"
 
     header += "\n"
 
@@ -53,16 +62,8 @@ class ASTNode;
         struct_name = parts[0].strip()
         fields = [f.strip() for f in parts[1].split("|")]
 
-        header += f"class {struct_name} {{\n"
+        header += f"struct {struct_name} {{\n"
 
-        for field in fields:
-            try:
-                ftype, fname = field.rsplit(" ", 1)
-                header += f"    {ftype} _{fname};\n"
-            except ValueError:
-                print(f"Error parsing field '{field}' in class '{struct_name}'")
-
-        header += "public:\n"
         header += "    " + struct_name + "("
         header += ", ".join(
             [f"{f.rsplit(' ', 1)[0]} {f.rsplit(' ', 1)[1]}" for f in fields]
@@ -71,24 +72,34 @@ class ASTNode;
         header += ", ".join(
             [
                 f"_{f.rsplit(' ', 1)[1]}(std::move({f.rsplit(' ', 1)[1]}))"
-                if "std::unique_ptr" in f.rsplit(" ", 1)[0]
+                if needs_move(f.rsplit(" ", 1)[0])
                 else f"_{f.rsplit(' ', 1)[1]}({f.rsplit(' ', 1)[1]})"
                 for f in fields
             ]
         )
         header += " {}\n"
 
+        header += f"    {struct_name}({struct_name}&&) = default;\n"
+        header += f"    {struct_name}& operator=({struct_name}&&) = default;\n"
+
+        for field in fields:
+            try:
+                ftype, fname = field.rsplit(" ", 1)
+                header += f"    {ftype} _{fname};\n"
+            except ValueError:
+                print(f"Error parsing field '{field}' in class '{struct_name}'")
+
         header += "};\n\n"
 
     header += """
 class ASTNode {
 public:
-    ASTNode(TOKEN token_type, std::size_t linum, std::size_t column);
+    template <typename T>
+    ASTNode(std::size_t linum, std::size_t column, T &&value);
     template <typename Visitor> auto accept(Visitor &&visitor) const;
 
-    TOKEN _type;
-    std::size_t _column;
     std::size_t _linum;
+    std::size_t _column;
     std::variant<
 """
     header += ",\n        ".join(f"{class_name}" for class_name in node_classes)
@@ -96,8 +107,21 @@ public:
     > _value;
 };
 
+template <typename T>
+ASTNode::ASTNode(std::size_t linum,
+                 std::size_t column, T &&value)
+     :_linum(linum), _column(column),
+      _value(std::move(value)) {}
+
 template <typename Visitor> auto ASTNode::accept(Visitor &&visitor) const {
     return std::visit(std::forward<Visitor>(visitor), _value);
+}
+
+template <typename T, typename... Args>
+std::unique_ptr<ASTNode> make_ast_node(std::size_t linum,
+                                       std::size_t column, Args &&...args) {
+  return std::make_unique<ASTNode>(linum, column,
+                                   T{std::forward<Args>(args)...});
 }
 
 } // namespace plzerow
@@ -111,9 +135,6 @@ def generate_source(nodes):
 #include "ast_nodes.hpp"
 
 namespace plzerow {
-
-ASTNode::ASTNode(TOKEN token_type, std::size_t linum, std::size_t column)
-    : _type(token_type), _linum(linum), _column(column) {}
 
 } // namespace plzerow
 """
