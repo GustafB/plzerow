@@ -1,7 +1,9 @@
 #pragma once
 
+#include "ast_nodes.hpp"
 #include "token.hpp"
 #include <functional>
+#include <memory>
 #include <vector>
 
 namespace {
@@ -18,7 +20,7 @@ class Parser {
 public:
   Parser();
   Parser(TokenGenerator &&next_token);
-  void parse();
+  std::unique_ptr<ASTNode> parse();
 
 private:
   const Token &current() const;
@@ -26,18 +28,32 @@ private:
   void expect(TOKEN expected_token);
   void next();
 
-  void block();
-  void statement();
-  void expression();
-  void condition();
-  void term();
-  void factor();
+  std::unique_ptr<ASTNode> block();
+  std::unique_ptr<ASTNode> statement();
+  std::unique_ptr<ASTNode> expression();
+  std::unique_ptr<ASTNode> condition();
+  std::unique_ptr<ASTNode> term();
+  std::unique_ptr<ASTNode> factor();
+
+  std::unique_ptr<ASTNode> make_constant();
+  std::unique_ptr<ASTNode> make_var();
+  std::unique_ptr<ASTNode> make_procedure();
+
+  template <typename T, typename... Args>
+  std::unique_ptr<ASTNode> make_node(Args &&...args);
 
   void parse_error(const std::string &err) const;
 
   std::function<Token()> _next_token;
   Token _current;
   Token _previous;
+  std::unique_ptr<ASTNode> _program;
 };
+
+template <typename T, typename... Args>
+std::unique_ptr<ASTNode> Parser::make_node(Args &&...args) {
+  return make_ast_node<T>(current().linum(), current().token_start(),
+                          T{std::forward<Args>(args)...});
+}
 
 } // namespace plzerow

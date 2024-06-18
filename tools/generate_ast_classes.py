@@ -14,9 +14,12 @@ ast_nodes = [
     "Condition : TOKEN op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
     "OddCondition: std::unique_ptr<ASTNode> expression",
     "Comparison: TOKEN op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
-    "Expression: TOKEN op | std::unique_ptr<ASTNode> term | ExprContainer terms",
+    "Expression: TOKEN op | std::unique_ptr<ASTNode> left | ExprContainer right",
     "Term      : TOKEN op | std::unique_ptr<ASTNode> left | ExprContainer right",
-    "Factor    : std::unique_ptr<ASTNode> value",
+    "Binary    : TOKEN op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
+    "Unary     : TOKEN op | std::unique_ptr<ASTNode> right",
+    "Factor    : TOKEN op | std::unique_ptr<ASTNode> right",
+    "Primary   : std::string right",
     "Program   : std::unique_ptr<ASTNode> block",
 ]
 

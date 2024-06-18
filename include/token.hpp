@@ -27,7 +27,7 @@ public:
   ~Token() = default;
 
   TOKEN type() const;
-  std::string literal() const;
+  const std::string &literal() const;
   std::size_t linum() const;
   std::size_t token_start() const;
 

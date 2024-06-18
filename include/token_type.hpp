@@ -3,6 +3,7 @@
 namespace plzerow {
 
 enum class TOKEN {
+  PROGRAM,
   IDENT = 'I',
   NUMBER = 'N',
   CONST = 'C',
