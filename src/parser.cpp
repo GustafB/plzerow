@@ -1,5 +1,6 @@
 #include "parser.hpp"
 #include "ast_nodes.hpp"
+#include "fmt/core.h"
 #include "token_type.hpp"
 #include <cstdlib>
 #include <iostream>
@@ -144,14 +145,14 @@ std::unique_ptr<ASTNode> Parser::statement() {
   case TOKEN::BEGIN: {
     std::vector<std::unique_ptr<ASTNode>> stmts;
     expect(TOKEN::BEGIN);
-    stmts.push_back(statement());
+    auto base_statement = statement();
     while (current().type() == TOKEN::SEMICOLON) {
       expect(TOKEN::SEMICOLON);
       stmts.push_back(statement());
     }
     expect(TOKEN::END);
     return make_ast_node<Begin>(previous().linum(), previous().token_start(),
-                                nullptr, std::move(stmts));
+                                std::move(base_statement), std::move(stmts));
   }
   case TOKEN::IF: {
     expect(TOKEN::IF);
@@ -170,6 +171,8 @@ std::unique_ptr<ASTNode> Parser::statement() {
                                 std::move(cond), std::move(stmt));
   }
   default:
+    parse_error(fmt::format("unexpected token {}",
+                            static_cast<char>(current().type())));
     return nullptr;
   }
 }
@@ -177,9 +180,8 @@ std::unique_ptr<ASTNode> Parser::statement() {
 std::unique_ptr<ASTNode> Parser::condition() {
   if (current().type() == TOKEN::ODD) {
     expect(TOKEN::ODD);
-    auto expr = expression();
-    return make_ast_node<OddCondition>(
-        previous().linum(), previous().token_start(), std::move(expr));
+    return make_ast_node<OddCondition>(previous().linum(),
+                                       previous().token_start(), expression());
   } else {
     auto left = expression();
     auto op = current().type();
@@ -194,6 +196,12 @@ std::unique_ptr<ASTNode> Parser::condition() {
       next();
     }
     auto right = expression();
+    if (left == nullptr) {
+      std::cout << "condition left is null\n";
+    }
+    if (right == nullptr) {
+      std::cout << "condition right is null\n";
+    }
     return make_ast_node<Condition>(previous().linum(),
                                     previous().token_start(), op,
                                     std::move(left), std::move(right));
@@ -236,6 +244,8 @@ std::unique_ptr<ASTNode> Parser::factor() {
     return make_node<Factor>(factor_op, std::move(expr));
   }
   }
+  parse_error(
+      fmt::format("unexpected token {}", static_cast<char>(current().type())));
   return nullptr;
 }
 

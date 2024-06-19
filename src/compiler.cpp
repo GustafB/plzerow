@@ -19,7 +19,6 @@ CompilerResult Compiler::compile(std::vector<char> &&source_code) {
 void Compiler::print(const std::unique_ptr<ASTNode> &node) const {
   static const Visitor printVisitor{
       [this](const Block &arg) -> void {
-        // std::cout << "size = " << arg._varDecls.size() << "\n";
         for (const auto &c : arg._constDecls) {
           print(c);
         }
@@ -34,26 +33,60 @@ void Compiler::print(const std::unique_ptr<ASTNode> &node) const {
       [this](const ConstDecl &arg) -> void {
         std::cout << arg._name << " " << arg._value << "\n";
       },
-      [this](const VarDecl &arg) -> void { std::cout << arg._name << "\n"; },
+      [this](const VarDecl &arg) -> void {
+        std::cout << "VarDecl: " << arg._name << "\n";
+      },
       [this](const Procedure &arg) -> void { std::cout << "Procedure\n"; },
-      [this](const Statement &arg) -> void { print(arg._statement); },
-      [this](const Assignment &arg) -> void { std::cout << "Assignment\n"; },
+      [this](const Statement &arg) -> void {
+        std::cout << "Statement: \n";
+        print(arg._statement);
+      },
+      [this](const Assignment &arg) -> void {
+        std::cout << "Assignment: " << arg._name << "\n";
+      },
       [this](const Call &arg) -> void { std::cout << "Call\n"; },
       [this](const Begin &arg) -> void {
+        std::cout << "Begin\n";
         print(arg._statement);
         for (const auto &s : arg._statements) {
+          if (!s) {
+            std::cout << "nullptr\n";
+            continue;
+          }
           print(s);
         }
       },
       [this](const If &arg) -> void { std::cout << "If\n"; },
-      [this](const While &arg) -> void { std::cout << "While\n"; },
-      [this](const Condition &arg) -> void { std::cout << "Condition\n"; },
+      [this](const While &arg) -> void {
+        std::cout << "While: \n";
+        print(arg._condition);
+        print(arg._statement);
+      },
+      [this](const Condition &arg) -> void {
+        std::cout << "Condition: \n";
+        print(arg._left);
+        std::cout << static_cast<char>(arg._op) << "\n";
+        print(arg._right);
+      },
       [this](const OddCondition &arg) -> void {
         std::cout << "OddCondition\n";
       },
       [this](const Comparison &arg) -> void { std::cout << "Comparison\n"; },
-      [this](const Expression &arg) -> void { std::cout << "Expression\n"; },
-      [this](const Term &arg) -> void { std::cout << "Term\n"; },
+      [this](const Expression &arg) -> void {
+        std::cout << "Expression: \n";
+        print(arg._left);
+        std::cout << static_cast<char>(arg._op) << "\n";
+        for (const auto &[op, e] : arg._right) {
+          std::cout << static_cast<char>(op) << "\n";
+          print(e);
+        }
+      },
+      [this](const Term &arg) -> void {
+        std::cout << "Term: \n";
+        print(arg._left);
+        std::cout << static_cast<char>(arg._op) << "\n";
+        // print(arg._right);
+      },
       [this](const Binary &arg) -> void { std::cout << "Binary\n"; },
       [this](const Unary &arg) -> void { std::cout << "Unary\n"; },
       [this](const Factor &arg) -> void { std::cout << "Factor\n"; },
