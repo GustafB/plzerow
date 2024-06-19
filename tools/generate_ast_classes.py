@@ -1,26 +1,28 @@
 import sys
 
 ast_nodes = [
-    "Block     : NodeContainer constDecls | NodeContainer varDecls | NodeContainer procedures | std::unique_ptr<ASTNode> statement",
-    "ConstDecl : std::string name | int value",
-    "VarDecl   : std::string name",
-    "Procedure : std::string name | std::unique_ptr<ASTNode> block",
-    "Statement : std::unique_ptr<ASTNode> statement",
-    "Assignment: std::string name | std::unique_ptr<ASTNode> expression",
-    "Call      : std::string name",
-    "Begin     : std::unique_ptr<ASTNode> statement | NodeContainer statements",
-    "If        : std::unique_ptr<ASTNode> condition | std::unique_ptr<ASTNode> statement",
-    "While     : std::unique_ptr<ASTNode> condition | std::unique_ptr<ASTNode> statement",
-    "Condition : TOKEN op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
-    "OddCondition: std::unique_ptr<ASTNode> expression",
-    "Comparison: TOKEN op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
-    "Expression: TOKEN op | std::unique_ptr<ASTNode> left | ExprContainer right",
-    "Term      : TOKEN op | std::unique_ptr<ASTNode> left | ExprContainer right",
-    "Binary    : TOKEN op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
-    "Unary     : TOKEN op | std::unique_ptr<ASTNode> right",
-    "Factor    : TOKEN op | std::unique_ptr<ASTNode> right",
-    "Primary   : std::string right",
-    "Program   : std::unique_ptr<ASTNode> block",
+    # "Block     : ExprVector constDecls | ExprVector varDecls | ExprVector procedures | std::unique_ptr<ASTNode> statement",
+    # "ConstDecl : std::string name | int value",
+    # "VarDecl   : std::string name",
+    # "Procedure : std::string name | std::unique_ptr<ASTNode> block",
+    # "Statement : std::unique_ptr<ASTNode> statement",
+    # "Assignment: std::string name | std::unique_ptr<ASTNode> expression",
+    # "Call      : std::string name",
+    # "Begin     : std::unique_ptr<ASTNode> statement | ExprVector statements",
+    # "If        : std::unique_ptr<ASTNode> condition | std::unique_ptr<ASTNode> statement",
+    # "While     : std::unique_ptr<ASTNode> condition | std::unique_ptr<ASTNode> statement",
+    # "Condition : TOKEN op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
+    # "OddCondition: std::unique_ptr<ASTNode> expression",
+    # "Comparison: TOKEN op | std::unique_ptr<ASTNode> left | std::unique_ptr<ASTNode> right",
+    # "Program   : std::unique_ptr<ASTNode> block",
+    "Equality  : std::unique_ptr<ASTNode> left | TOKEN op | std::unique_ptr<ASTNode> right",
+    "Comparison: std::unique_ptr<ASTNode> left | TOKEN op | std::unique_ptr<ASTNode> right",
+    "Term      : std::unique_ptr<ASTNode> left | TOKEN op | std::unique_ptr<ASTNode> right",
+    "Unary     : std::unique_ptr<ASTNode> left | TOKEN op | std::unique_ptr<ASTNode> right",
+    "Binary    : std::unique_ptr<ASTNode> left | TOKEN op | std::unique_ptr<ASTNode> right",
+    "Factor    : std::unique_ptr<ASTNode> left | TOKEN op | std::unique_ptr<ASTNode> right",
+    "Primary   : std::unique_ptr<ASTNode> value",
+    "Literal   : std::string value",
 ]
 
 
@@ -38,13 +40,13 @@ namespace plzerow {
 
 class ASTNode;
 
-using ExprContainer = std::vector<std::pair<TOKEN, std::unique_ptr<ASTNode>>>;
-using NodeContainer = std::vector<std::unique_ptr<ASTNode>>;
+using Expression = std::unique_ptr<ASTNode>;
+using ExprVector = std::vector<Expression>;
 
 """
 
     def needs_move(type):
-        for t in ("std::unique_ptr", "NodeContainer", "ExprContainer"):
+        for t in ("std::unique_ptr", "ExprVector", "Expression"):
             if t in type:
                 return True
         return False
