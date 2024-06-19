@@ -107,7 +107,7 @@ std::unique_ptr<ASTNode> Parser::expression() { return equality(); }
 
 std::unique_ptr<ASTNode> Parser::equality() {
   auto left = comparison();
-  while (match(TOKEN::EQUAL)) {
+  while (match(TOKEN::EQUAL, TOKEN::NOTEQUAL)) {
     TOKEN op = previous().type();
     auto right = comparison();
     left = make_ast_node<Binary>(0, 0, std::move(left), op, std::move(right));
@@ -118,7 +118,7 @@ std::unique_ptr<ASTNode> Parser::equality() {
 std::unique_ptr<ASTNode> Parser::comparison() {
   auto left = term();
 
-  while (match(TOKEN::LESSTHAN, TOKEN::GREATERTHAN)) {
+  while (match(TOKEN::LT, TOKEN::GT, TOKEN::GE, TOKEN::LE)) {
     TOKEN op = previous().type();
     auto right = term();
     left = make_ast_node<Binary>(0, 0, std::move(left), op, std::move(right));
@@ -149,7 +149,7 @@ std::unique_ptr<ASTNode> Parser::factor() {
 }
 
 std::unique_ptr<ASTNode> Parser::unary() {
-  if (match(TOKEN::MINUS)) {
+  if (match(TOKEN::MINUS, TOKEN::NOT)) {
     TOKEN op = previous().type();
     auto right = unary();
     return make_ast_node<Unary>(0, 0, std::move(right), op, nullptr);

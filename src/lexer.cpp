@@ -166,10 +166,18 @@ Token Lexer::next() {
     _token = TOKEN::HASH;
     break;
   case '<':
-    _token = TOKEN::LESSTHAN;
+    _token = TOKEN::LT;
+    if (peek() == '=') {
+      _token = TOKEN::LE;
+      advance();
+    }
     break;
   case '>':
-    _token = TOKEN::GREATERTHAN;
+    _token = TOKEN::GT;
+    if (peek() == '=') {
+      _token = TOKEN::GE;
+      advance();
+    }
     break;
   case '+':
     _token = TOKEN::PLUS;
@@ -188,6 +196,13 @@ Token Lexer::next() {
     break;
   case ')':
     _token = TOKEN::RPAREN;
+    break;
+  case '!':
+    _token = TOKEN::NOT;
+    if (peek() == '=') {
+      _token = TOKEN::NOTEQUAL;
+      advance();
+    }
     break;
   case ':':
     if (peek() != '=') {
