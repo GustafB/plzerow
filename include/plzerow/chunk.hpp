@@ -17,8 +17,7 @@ class Chunk {
 
  public:
   std::size_t append(OP_CODE instruction, std::size_t linum);
-  std::size_t append(OP_CODE instruction, const Value &value,
-                     std::size_t linum);
+  std::size_t append(OP_CODE instruction, Value &&value, std::size_t linum);
 
   InstructionPointer cbegin() const;
 

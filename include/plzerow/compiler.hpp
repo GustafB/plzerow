@@ -19,6 +19,9 @@ class Compiler {
   Chunk byte_code() { return _byte_code; }
 
  private:
+  void emit_instruction(OP_CODE instruction, std::size_t linum);
+  void emit_constant(OP_CODE instruction, Value &&value, std::size_t linum);
+
   std::string to_npn(const std::unique_ptr<ASTNode> &node) const;
   void generate_byte_code(const std::unique_ptr<ASTNode> &expr);
 

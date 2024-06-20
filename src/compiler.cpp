@@ -3,6 +3,7 @@
 #include <plzerow/ast_nodes.hpp>
 #include <plzerow/chunk.hpp>
 #include <plzerow/compiler.hpp>
+#include <plzerow/op_codes.hpp>
 #include <plzerow/parser.hpp>
 #include <plzerow/value.hpp>
 #include <utility>
@@ -26,6 +27,16 @@ enum class PRECEDENCE {
 
 namespace plzerow {
 
+void Compiler::emit_instruction(plzerow::OP_CODE instruction,
+                                std::size_t linum) {
+  _byte_code.append(instruction, linum);
+}
+
+void Compiler::emit_constant(plzerow::OP_CODE instruction,
+                             plzerow::Value &&constant, std::size_t linum) {
+  _byte_code.append(instruction, std::forward<Value>(constant), linum);
+}
+
 CompilerResult Compiler::compile(std::vector<char> &&source_code) {
   _lexer = Lexer(std::forward<std::vector<char>>(source_code));
   _parser = Parser([this]() { return _lexer.next(); });
@@ -33,7 +44,7 @@ CompilerResult Compiler::compile(std::vector<char> &&source_code) {
   std::cout << to_npn(_ast) << "\n";
   _byte_code = Chunk();
   generate_byte_code(_ast);
-  _byte_code.append(OP_CODE::RETURN, 0);
+  emit_instruction(OP_CODE::RETURN, 0);
   return CompilerResult::OK;
 }
 
@@ -85,7 +96,6 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
         std::cout << "Binary\n";
         evaluate(expr._left);
         evaluate(expr._right);
-
         OP_CODE op;
         switch (expr._op) {
         case TOKEN::PLUS:
@@ -121,14 +131,12 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
         default:
           return;
         }
-
-        _byte_code.append(op, node->_linum);
+        emit_instruction(op, node->_linum);
       },
       [this](const Term &expr) -> void { std::cout << "Term\n"; },
       [this, &node](const Unary &expr) -> void {
         std::cout << "Unary\n";
         evaluate(expr._right);
-
         OP_CODE op;
         switch (expr._op) {
         case TOKEN::NOT:
@@ -140,7 +148,7 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
         default:
           return;
         }
-        _byte_code.append(op, node->_linum);
+        emit_instruction(op, node->_linum);
       },
       [this](const Primary &expr) -> void { std::cout << "Primary\n"; },
       [this](const Grouping &expr) -> void {
@@ -150,7 +158,7 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
       [this, &node](const Literal &expr) -> void {
         std::cout << "Literal\n";
         int number = std::atoi(expr._value.c_str());
-        _byte_code.append(OP_CODE::CONSTANT, Value{number}, node->_linum);
+        emit_constant(OP_CODE::CONSTANT, Value{number}, node->_linum);
       },
       [this](const Factor &expr) -> void { std::cout << "Factor\n"; }};
 

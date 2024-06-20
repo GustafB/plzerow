@@ -15,9 +15,9 @@ std::size_t Chunk::append(OP_CODE instruction, std::size_t linum) {
   return append(static_cast<std::uint8_t>(instruction));
 }
 
-std::size_t Chunk::append(OP_CODE instruction, const Value &value,
+std::size_t Chunk::append(OP_CODE instruction, Value &&value,
                           std::size_t linum) {
-  auto constant_index = _constants.append(value);
+  auto constant_index = _constants.append(std::forward<Value>(value));
   add_linum(linum, 2);
   append(static_cast<uint8_t>(instruction));
   return append(static_cast<std::uint8_t>(constant_index)) - 1;
