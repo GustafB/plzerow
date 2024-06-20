@@ -3,8 +3,18 @@
 #include <iostream>
 #include <plzerow/debugger.hpp>
 #include <plzerow/value.hpp>
+#include <sstream>
 
 namespace {
+
+template <typename... Exprs>
+std::string parenthesize(std::string_view name, Exprs &...exprs) {
+  std::stringstream ss;
+  ss << "( " << name;
+  ((ss << " " << plzerow::Debugger::ast_to_npn(exprs)), ...);
+  ss << " )";
+  return ss.str();
+}
 
 std::size_t constant_instruction_helper(const std::string &name,
                                         std::size_t offset,
@@ -36,6 +46,8 @@ std::size_t constant_long_instruction(const std::string &name,
 }  // namespace
 
 namespace plzerow {
+
+#ifdef PLZEROW_DEBUG
 
 std::size_t Debugger::disassemble_instruction(std::size_t offset,
                                               const Chunk &chunk) {
@@ -96,5 +108,43 @@ std::size_t Debugger::disassemble(const std::string &name, const Chunk &chunk) {
   }
   return 0;
 }
+
+std::string Debugger::ast_to_npn(const std::unique_ptr<ASTNode> &node) {
+  auto char_to_str = [](TOKEN token) -> std::string {
+    char c = static_cast<char>(token);
+    return std::string(&c, &c + 1);
+  };
+
+  static const Visitor print_visitor{
+      [char_to_str](const Equality &expr) -> std::string {
+        return parenthesize(char_to_str(expr._op), expr._left, expr._right);
+      },
+      [char_to_str](const Comparison &expr) -> std::string {
+        return parenthesize(char_to_str(expr._op), expr._left, expr._right);
+      },
+      [char_to_str](const Binary &expr) -> std::string {
+        return parenthesize(char_to_str(expr._op), expr._left, expr._right);
+      },
+      [char_to_str](const Term &expr) -> std::string {
+        return parenthesize(char_to_str(expr._op), expr._left, expr._right);
+      },
+      [](const Grouping &expr) -> std::string {
+        return ast_to_npn(expr._expression);
+      },
+      [char_to_str](const Unary &expr) -> std::string {
+        return parenthesize(char_to_str(expr._op), expr._right);
+      },
+      [](const Primary &expr) -> std::string {
+        return ast_to_npn(expr._value);
+      },
+      [](const Literal &expr) -> std::string { return expr._value; },
+      [char_to_str](const Factor &expr) -> std::string {
+        return parenthesize(char_to_str(expr._op), expr._left, expr._right);
+      }};
+
+  return node->accept(print_visitor);
+}
+
+#endif
 
 }  // namespace plzerow

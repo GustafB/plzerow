@@ -50,9 +50,11 @@ Value VM::pop_stack() {
 InterpretResult VM::run() {
   auto first_instruction = _chunk.cbegin();
   for (;;) {
+#ifdef PLZEROW_DEBUG
     dump_stack(_stack);
     auto offset = std::distance(first_instruction, _ip);
     Debugger::disassemble_instruction(offset, _chunk);
+#endif
     OP_CODE instruction = static_cast<OP_CODE>(*next());
     switch (instruction) {
     case OP_CODE::CONSTANT:

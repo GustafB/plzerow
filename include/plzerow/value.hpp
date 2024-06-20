@@ -22,11 +22,15 @@ constexpr Visitor PrintVisitor{
 };
 
 constexpr Visitor Number{
+    [](bool arg) -> std::int32_t {
+      std::cout << "bool\n";
+      return arg;
+    },
     [](double arg) -> std::int32_t { return arg; },
     [](std::int32_t arg) -> std::int32_t { return arg; },
 };
 
-using Value = std::variant<double, std::int32_t>;
+using Value = std::variant<double, std::int32_t, bool>;
 using ValueContainer = std::vector<Value>;
 using ValuePointer = ValueContainer::const_pointer;
 
