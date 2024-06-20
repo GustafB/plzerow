@@ -124,7 +124,6 @@ std::unique_ptr<ASTNode> Parser::comparison() {
   const std::size_t linum = current().linum();
   const std::size_t column = current().token_start();
   auto left = term();
-
   while (match(TOKEN::LT, TOKEN::GT, TOKEN::GE, TOKEN::LE)) {
     TOKEN op = previous().type();
     auto right = term();
@@ -138,7 +137,6 @@ std::unique_ptr<ASTNode> Parser::term() {
   const std::size_t linum = current().linum();
   const std::size_t column = current().token_start();
   auto left = factor();
-
   while (match(TOKEN::PLUS, TOKEN::MINUS)) {
     TOKEN op = previous().type();
     auto right = factor();
@@ -152,7 +150,6 @@ std::unique_ptr<ASTNode> Parser::factor() {
   const std::size_t linum = current().linum();
   const std::size_t column = current().token_start();
   auto left = unary();
-
   while (match(TOKEN::MULTIPLY, TOKEN::DIVIDE)) {
     TOKEN op = previous().type();
     auto right = unary();
@@ -176,15 +173,12 @@ std::unique_ptr<ASTNode> Parser::unary() {
 std::unique_ptr<ASTNode> Parser::primary() {
   const std::size_t linum = current().linum();
   const std::size_t column = current().token_start();
-
   if (match(TOKEN::NUMBER)) {
     return make_ast_node<Literal>(linum, column, previous().literal());
   }
-
   if (match(TOKEN::LPAREN)) {
     return grouping();
   }
-
   return nullptr;
 }
 
