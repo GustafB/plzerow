@@ -120,14 +120,17 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
         case TOKEN::LT:
           op = OP_CODE::LT;
           break;
-        case TOKEN::SAME:
-          op = OP_CODE::EQUALITY;
+        case TOKEN::BANG_EQUAL:
+          op = OP_CODE::NOT_EQUAL;
+          break;
+        case TOKEN::EQUAL_EQUAL:
+          op = OP_CODE::EQUAL;
           break;
         default:
           return;
         }
 
-        _byte_code.append(op, node->_linum);  //
+        _byte_code.append(op, node->_linum);
       },
       [this](const Term &expr) -> void {
         std::cout << "Term\n";

@@ -1,4 +1,5 @@
 #include "virtual_machine.hpp"
+#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <string>
@@ -31,15 +32,7 @@ auto binary_op = [](const plzerow::Value &lhs, const plzerow::Value &rhs,
                     std::function<double(double, double)> f) -> plzerow::Value {
   auto lhs_v = std::visit(plzerow::Number, lhs);
   auto rhs_v = std::visit(plzerow::Number, rhs);
-  /*
-   * Pay close attention to the order of the two pops. Note that we assign the
-   * first popped operand to b, not a. It looks backwards. When the operands
-   * themselves are calculated, the left is evaluated first, then the right.
-   * That means the left operand gets pushed before the right operand. So the
-   * right operand will be on top of the stack. Thus, the first value we pop is
-   * b.
-   */
-  return plzerow::Value{f(rhs_v, lhs_v)};
+  return plzerow::Value{f(lhs_v, rhs_v)};
 };
 
 }  // namespace
@@ -103,6 +96,14 @@ InterpretResult VM::run() {
     case OP_CODE::GE:
       _stack.push(binary_op(pop_stack(), pop_stack(),
                             std::greater_equal<std::int32_t>()));
+      break;
+    case OP_CODE::EQUAL:
+      _stack.push(
+          binary_op(pop_stack(), pop_stack(), std::equal_to<std::int32_t>()));
+      break;
+    case OP_CODE::NOT_EQUAL:
+      _stack.push(binary_op(pop_stack(), pop_stack(),
+                            std::not_equal_to<std::int32_t>()));
       break;
     case OP_CODE::RETURN:
       std::visit(PrintVisitor, _stack.top());

@@ -48,8 +48,10 @@ std::size_t Debugger::disassemble_instruction(std::size_t offset,
 
   const auto instruction = static_cast<OP_CODE>(chunk.cbegin()[offset]);
   switch (instruction) {
-  case OP_CODE::EQUALITY:
-    return simple_instruction("EQUALITY", offset);
+  case OP_CODE::EQUAL:
+    return simple_instruction("EQUAL", offset);
+  case OP_CODE::NOT_EQUAL:
+    return simple_instruction("NOT_EQUAL", offset);
   case OP_CODE::LT:
     return simple_instruction("LT", offset);
   case OP_CODE::LE:

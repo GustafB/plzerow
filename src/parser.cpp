@@ -108,60 +108,77 @@ std::unique_ptr<ASTNode> Parser::parse() {
 std::unique_ptr<ASTNode> Parser::expression() { return equality(); }
 
 std::unique_ptr<ASTNode> Parser::equality() {
+  const std::size_t linum = current().linum();
+  const std::size_t column = current().token_start();
   auto left = comparison();
-  while (match(TOKEN::EQUAL, TOKEN::NOTEQUAL)) {
+  while (match(TOKEN::EQUAL_EQUAL, TOKEN::BANG_EQUAL)) {
     TOKEN op = previous().type();
     auto right = comparison();
-    left = make_ast_node<Binary>(0, 0, std::move(left), op, std::move(right));
+    left = make_ast_node<Binary>(linum, column, std::move(left), op,
+                                 std::move(right));
   }
   return left;
 }
 
 std::unique_ptr<ASTNode> Parser::comparison() {
+  const std::size_t linum = current().linum();
+  const std::size_t column = current().token_start();
   auto left = term();
 
   while (match(TOKEN::LT, TOKEN::GT, TOKEN::GE, TOKEN::LE)) {
     TOKEN op = previous().type();
     auto right = term();
-    left = make_ast_node<Binary>(0, 0, std::move(left), op, std::move(right));
+    left = make_ast_node<Binary>(linum, column, std::move(left), op,
+                                 std::move(right));
   }
   return left;
 }
 
 std::unique_ptr<ASTNode> Parser::term() {
+  const std::size_t linum = current().linum();
+  const std::size_t column = current().token_start();
   auto left = factor();
 
   while (match(TOKEN::PLUS, TOKEN::MINUS)) {
     TOKEN op = previous().type();
     auto right = factor();
-    left = make_ast_node<Binary>(0, 0, std::move(left), op, std::move(right));
+    left = make_ast_node<Binary>(linum, column, std::move(left), op,
+                                 std::move(right));
   }
   return left;
 }
 
 std::unique_ptr<ASTNode> Parser::factor() {
+  const std::size_t linum = current().linum();
+  const std::size_t column = current().token_start();
   auto left = unary();
 
   while (match(TOKEN::MULTIPLY, TOKEN::DIVIDE)) {
     TOKEN op = previous().type();
     auto right = unary();
-    left = make_ast_node<Binary>(0, 0, std::move(left), op, std::move(right));
+    left = make_ast_node<Binary>(linum, column, std::move(left), op,
+                                 std::move(right));
   }
   return left;
 }
 
 std::unique_ptr<ASTNode> Parser::unary() {
+  const std::size_t linum = current().linum();
+  const std::size_t column = current().token_start();
   if (match(TOKEN::MINUS, TOKEN::NOT)) {
     TOKEN op = previous().type();
     auto right = unary();
-    return make_ast_node<Unary>(0, 0, op, std::move(right));
+    return make_ast_node<Unary>(linum, column, op, std::move(right));
   }
   return primary();
 }
 
 std::unique_ptr<ASTNode> Parser::primary() {
+  const std::size_t linum = current().linum();
+  const std::size_t column = current().token_start();
+
   if (match(TOKEN::NUMBER)) {
-    return make_ast_node<Literal>(0, 0, previous().literal());
+    return make_ast_node<Literal>(linum, column, previous().literal());
   }
 
   if (match(TOKEN::LPAREN)) {

@@ -1,23 +1,25 @@
 #include "lexer.hpp"
-#include "fmt/core.h"
-#include "token.hpp"
-#include "token_type.hpp"
 #include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <iterator>
 #include <string>
 #include <unordered_map>
+#include "fmt/core.h"
+#include "token.hpp"
+#include "token_type.hpp"
 
 namespace plzerow {
 
 Lexer::Lexer(std::vector<char> &&source)
     : _buffer{std::forward<std::vector<char>>(source)},
-      _filesize{_buffer.size()}, _filename{"repl"} {}
+      _filesize{_buffer.size()},
+      _filename{"repl"} {}
 
 Lexer::Lexer(const std::string &filename, std::vector<char> &&source)
     : _buffer{std::forward<std::vector<char>>(source)},
-      _filesize{_buffer.size()}, _filename{filename} {}
+      _filesize{_buffer.size()},
+      _filename{filename} {}
 
 std::vector<Token> Lexer::tokenize() {
   std::vector<Token> tokens;
@@ -132,16 +134,15 @@ void Lexer::parse_whitespace() {
     }
   }
 }
-
 Token Lexer::next() {
   parse_whitespace();
 
   _literal = "";
-  _token = TOKEN::UNKNOWN;
+  _token = TOKEN::ENDFILE;
   _token_line_pos = _lpos;
   _token_start = _pos;
 
-  auto c = advance();
+  const auto c = advance();
 
   if (std::isalpha(c) || c == '_') {
     return parse_ident();
@@ -154,6 +155,12 @@ Token Lexer::next() {
     _token = TOKEN::DOT;
     break;
   case '=':
+    if (peek() == '=') {
+      const auto token =
+          Token(TOKEN::EQUAL_EQUAL, _literal, _linum, _token_line_pos);
+      advance();
+      return token;
+    }
     _token = TOKEN::EQUAL;
     break;
   case ',':
@@ -166,18 +173,20 @@ Token Lexer::next() {
     _token = TOKEN::HASH;
     break;
   case '<':
-    _token = TOKEN::LT;
     if (peek() == '=') {
-      _token = TOKEN::LE;
+      const auto token = Token(TOKEN::LE, _literal, _linum, _token_line_pos);
       advance();
+      return token;
     }
+    _token = TOKEN::LT;
     break;
   case '>':
-    _token = TOKEN::GT;
     if (peek() == '=') {
-      _token = TOKEN::GE;
+      const auto token = Token(TOKEN::GE, _literal, _linum, _token_line_pos);
       advance();
+      return token;
     }
+    _token = TOKEN::GT;
     break;
   case '+':
     _token = TOKEN::PLUS;
@@ -200,17 +209,22 @@ Token Lexer::next() {
   case '!':
     _token = TOKEN::NOT;
     if (peek() == '=') {
-      _token = TOKEN::NOTEQUAL;
+      const auto token =
+          Token(TOKEN::BANG_EQUAL, _literal, _linum, _token_line_pos);
       advance();
+      return token;
     }
     break;
   case ':':
-    if (peek() != '=') {
+    if (peek() == '=') {
+      const auto token =
+          Token(TOKEN::ASSIGN, _literal, _linum, _token_line_pos);
+      advance();
+      return token;
+    } else {
       _token = TOKEN::ERROR;
       _literal = fmt::format("unexpected token {}", c);
     }
-    _token = TOKEN::ASSIGN;
-    advance();
     break;
   case '\0':
     _token = TOKEN::ENDFILE;
@@ -223,4 +237,4 @@ Token Lexer::next() {
   return Token(_token, _literal, _linum, _token_line_pos);
 }
 
-} // namespace plzerow
+}
