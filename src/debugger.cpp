@@ -1,8 +1,8 @@
 #include "debugger.hpp"
-#include "value.hpp"
-#include "virtual_machine.hpp"
 #include <fmt/core.h>
 #include <iostream>
+#include "value.hpp"
+#include "virtual_machine.hpp"
 
 namespace {
 
@@ -33,7 +33,7 @@ std::size_t constant_long_instruction(const std::string &name,
   return constant_instruction_helper(name, offset, chunk);
 }
 
-} // namespace
+}  // namespace
 
 namespace plzerow {
 
@@ -81,4 +81,4 @@ std::size_t Debugger::disassemble(const std::string &name, const Chunk &chunk) {
   return 0;
 }
 
-} // namespace plzerow
+}  // namespace plzerow

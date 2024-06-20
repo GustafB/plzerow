@@ -1,11 +1,11 @@
 #pragma once
 
-#include "chunk.hpp"
-#include "compiler.hpp"
-#include "value.hpp"
 #include <cstdint>
 #include <stack>
 #include <utility>
+#include "chunk.hpp"
+#include "compiler.hpp"
+#include "value.hpp"
 
 namespace plzerow {
 
@@ -17,13 +17,19 @@ enum OP_CODE : std::uint8_t {
   OP_ADD,
   OP_MULTIPLY,
   OP_SUBTRACT,
-  OP_DIVIDE
+  OP_DIVIDE,
+  OP_EQUALITY,
+  OP_LT,
+  OP_LE,
+  OP_GT,
+  OP_GE,
+  OP_ERROR
 };
 
 enum class InterpretResult { OK, COMPILE_ERROR, RUNTIME_ERROR };
 
 class VM {
-public:
+ public:
   VM() = default;
   VM(Chunk &&chunk) : _chunk{std::forward<Chunk>(chunk)} {
     _ip = _chunk.cbegin();
@@ -33,11 +39,10 @@ public:
   void repl();
   void runfile(const std::string &filename);
 
-private:
+ private:
   InstructionPointer next();
-  std::uint8_t next_test();
-
   Value pop_stack();
+  void load_chunk(Chunk &&chunk);
 
   InstructionPointer _ip;
   Chunk _chunk;
@@ -45,4 +50,4 @@ private:
   Compiler _compiler;
 };
 
-} // namespace plzerow
+}  // namespace plzerow

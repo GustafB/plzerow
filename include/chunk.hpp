@@ -1,8 +1,8 @@
 #pragma once
 
-#include "value.hpp"
 #include <cstdint>
 #include <vector>
+#include "value.hpp"
 
 namespace plzerow {
 
@@ -14,7 +14,8 @@ using InstructionPointer = InstructionContainer::const_iterator;
 class Chunk {
   friend class Debugger;
 
-public:
+ public:
+  std::size_t size() { return _instructions.size(); }
   std::uint8_t append(std::uint8_t instruction, std::size_t linum);
   std::uint8_t append(std::uint8_t instruction, const Value &value,
                       std::size_t linum);
@@ -28,7 +29,7 @@ public:
 
   std::uint16_t linum(std::size_t instruction_index) const;
 
-private:
+ private:
   std::uint8_t append(std::uint8_t instruction);
   void add_linum(std::uint16_t linum, std::uint16_t op_size);
 
@@ -42,4 +43,4 @@ auto Chunk::visit_constant(std::size_t index, Visitor &&visitor) const {
   return _constants.visit(index, std::forward<Visitor>(visitor));
 }
 
-} // namespace plzerow
+}  // namespace plzerow

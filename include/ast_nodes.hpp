@@ -14,6 +14,7 @@ class ASTNode;
 using Expression = std::unique_ptr<ASTNode>;
 using ExprVector = std::vector<Expression>;
 
+struct Grouping;
 struct Equality;
 struct Comparison;
 struct Term;
@@ -22,6 +23,13 @@ struct Binary;
 struct Factor;
 struct Primary;
 struct Literal;
+
+struct Grouping {
+    Grouping(std::unique_ptr<ASTNode> expression) : _expression(std::move(expression)) {}
+    Grouping(Grouping&&) = default;
+    Grouping& operator=(Grouping&&) = default;
+    std::unique_ptr<ASTNode> _expression;
+};
 
 struct Equality {
     Equality(std::unique_ptr<ASTNode> left, TOKEN op, std::unique_ptr<ASTNode> right) : _left(std::move(left)), _op(op), _right(std::move(right)) {}
@@ -51,10 +59,9 @@ struct Term {
 };
 
 struct Unary {
-    Unary(std::unique_ptr<ASTNode> left, TOKEN op, std::unique_ptr<ASTNode> right) : _left(std::move(left)), _op(op), _right(std::move(right)) {}
+    Unary(TOKEN op, std::unique_ptr<ASTNode> right) : _op(op), _right(std::move(right)) {}
     Unary(Unary&&) = default;
     Unary& operator=(Unary&&) = default;
-    std::unique_ptr<ASTNode> _left;
     TOKEN _op;
     std::unique_ptr<ASTNode> _right;
 };
@@ -101,7 +108,8 @@ public:
     std::size_t _linum;
     std::size_t _column;
     std::variant<
-Equality,
+Grouping,
+        Equality,
         Comparison,
         Term,
         Unary,

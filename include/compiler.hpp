@@ -1,34 +1,34 @@
 #pragma once
 
+#include <cstdint>
+#include <memory>
 #include "ast_nodes.hpp"
 #include "chunk.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
-#include <cstdint>
-#include <memory>
 
 namespace plzerow {
 
 enum class CompilerResult { OK, LexicalError, ParseError };
 
 class Compiler {
-public:
+ public:
   Compiler() = default;
 
-  Chunk compile(std::vector<char> &&source_code);
+  CompilerResult compile(std::vector<char> &&source_code);
+  Chunk byte_code() { return _byte_code; }
 
-private:
+ private:
   std::string to_npn(const std::unique_ptr<ASTNode> &node) const;
-  Chunk generate_byte_code();
-
-  void emit_byte(std::uint8_t byte);
-  void emit_bytes(std::uint8_t byte1, std::uint8_t byte2);
-  void emit_return();
+  void generate_byte_code(const std::unique_ptr<ASTNode> &expr);
 
   template <typename... Exprs>
   std::string parenthesize(std::string_view name, Exprs &...exprs) const;
 
+  void evaluate(const std::unique_ptr<ASTNode> &expr);
+
   std::unique_ptr<ASTNode> _ast;
+  Chunk _byte_code;
   Parser _parser;
   Lexer _lexer;
 };
@@ -43,4 +43,4 @@ std::string Compiler::parenthesize(std::string_view name,
   return ss.str();
 }
 
-} // namespace plzerow
+}  // namespace plzerow

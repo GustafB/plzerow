@@ -1,12 +1,14 @@
 #include "virtual_machine.hpp"
+#include <cstddef>
+#include <functional>
+#include <iostream>
+#include <string>
+#include <utility>
+#include <variant>
 #include "chunk.hpp"
 #include "debugger.hpp"
 #include "inputhandler.hpp"
 #include "value.hpp"
-#include <functional>
-#include <iostream>
-#include <string>
-#include <variant>
 
 namespace {
 
@@ -38,7 +40,7 @@ auto BinaryOp = [](const plzerow::Value &lhs, const plzerow::Value &rhs,
   return plzerow::Value{f(rhs_v, lhs_v)};
 };
 
-} // namespace
+}  // namespace
 
 namespace plzerow {
 
@@ -51,9 +53,12 @@ Value VM::pop_stack() {
 }
 
 InterpretResult VM::run() {
+  std::cout << _chunk.size() << "\n";
+  auto first_instruction = _chunk.cbegin();
   for (;;) {
     dump_stack(_stack);
-    Debugger::disassemble_instruction(_ip - _chunk.cbegin(), _chunk);
+    auto offset = std::distance(first_instruction, _ip);
+    Debugger::disassemble_instruction(offset, _chunk);
     std::uint8_t instruction;
     switch (instruction = *next()) {
     case OP_CONSTANT:
@@ -81,6 +86,7 @@ InterpretResult VM::run() {
       break;
     case OP_RETURN:
       std::visit(PrintVisitor, _stack.top());
+      std::cout << "\n";
       _stack.pop();
       return InterpretResult::OK;
     default:
@@ -92,11 +98,19 @@ InterpretResult VM::run() {
   return InterpretResult::OK;
 }
 
+void VM::load_chunk(Chunk &&chunk) {
+  _chunk = std::forward<Chunk>(chunk);
+  _ip = _chunk.cbegin();
+  std::stack<Value>().swap(_stack);
+}
+
 void VM::repl() {
   for (;;) {
     std::cout << "> ";
     auto source_code = InputHandler::read_from_repl(std::cin);
     _compiler.compile(std::move(source_code));
+    load_chunk(_compiler.byte_code());
+    run();
   }
 }
 
@@ -105,4 +119,4 @@ void VM::runfile(const std::string &filename) {
   _compiler.compile(std::move(source_code));
 }
 
-} // namespace plzerow
+}  // namespace plzerow

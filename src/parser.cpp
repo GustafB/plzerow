@@ -1,11 +1,11 @@
 #include "parser.hpp"
-#include "ast_nodes.hpp"
-#include "fmt/core.h"
-#include "token_type.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include "ast_nodes.hpp"
+#include "fmt/core.h"
+#include "token_type.hpp"
 
 namespace plzerow {
 
@@ -13,11 +13,13 @@ Parser::Parser()
     : _next_token{[]() {
         return plzerow::Token(plzerow::TOKEN::ENDFILE, 0, 0);
       }},
-      _current{_next_token()}, _previous{TOKEN::ENDFILE, 0, 0} {}
+      _current{_next_token()},
+      _previous{TOKEN::ENDFILE, 0, 0} {}
 
 Parser::Parser(std::function<Token()> &&next_token)
     : _next_token(std::forward<TokenGenerator>(next_token)),
-      _current{_next_token()}, _previous{TOKEN::ENDFILE, 0, 0} {}
+      _current{_next_token()},
+      _previous{TOKEN::ENDFILE, 0, 0} {}
 
 void Parser::parse_error(const std::string &err) const {
   std::cerr << "[PARSE_ERROR] [" << current().linum() << ":"
@@ -152,7 +154,7 @@ std::unique_ptr<ASTNode> Parser::unary() {
   if (match(TOKEN::MINUS, TOKEN::NOT)) {
     TOKEN op = previous().type();
     auto right = unary();
-    return make_ast_node<Unary>(0, 0, std::move(right), op, nullptr);
+    return make_ast_node<Unary>(0, 0, op, std::move(right));
   }
   return primary();
 }
@@ -163,12 +165,16 @@ std::unique_ptr<ASTNode> Parser::primary() {
   }
 
   if (match(TOKEN::LPAREN)) {
-    auto left = expression();
-    expect(TOKEN::RPAREN);
-    return left;
+    return grouping();
   }
 
   return nullptr;
+}
+
+std::unique_ptr<ASTNode> Parser::grouping() {
+  auto expr = expression();
+  expect(TOKEN::RPAREN);
+  return expr;
 }
 
 // std::unique_ptr<ASTNode> Parser::block() {
@@ -349,4 +355,4 @@ std::unique_ptr<ASTNode> Parser::primary() {
 //                              std::move(factors));
 // }
 
-} // namespace plzerow
+}  // namespace plzerow

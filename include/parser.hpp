@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ast_nodes.hpp"
-#include "token.hpp"
 #include <functional>
 #include <memory>
 #include <sstream>
 #include <vector>
+#include "ast_nodes.hpp"
+#include "token.hpp"
 
 namespace {
 
@@ -13,23 +13,24 @@ using Tokens = std::vector<plzerow::Token>;
 using TokenIterator = Tokens::const_iterator;
 using TokenGenerator = std::function<plzerow::Token()>;
 
-} // namespace
+}  // namespace
 
 namespace plzerow {
 
 class Parser {
-public:
+ public:
   Parser();
   Parser(TokenGenerator &&next_token);
   std::unique_ptr<ASTNode> parse();
 
-private:
+ private:
   const Token &current() const;
   const Token &previous() const;
   void expect(TOKEN expected_token);
   void next();
 
-  template <typename... Types> bool match(Types... types);
+  template <typename... Types>
+  bool match(Types... types);
   bool match(std::initializer_list<TOKEN> types);
 
   std::unique_ptr<ASTNode> block();
@@ -37,6 +38,7 @@ private:
   std::unique_ptr<ASTNode> expression();
   std::unique_ptr<ASTNode> condition();
 
+  std::unique_ptr<ASTNode> grouping();
   std::unique_ptr<ASTNode> term();
   std::unique_ptr<ASTNode> factor();
   std::unique_ptr<ASTNode> equality();
@@ -65,8 +67,9 @@ std::unique_ptr<ASTNode> Parser::make_node(Args &&...args) {
                           T{std::forward<Args>(args)...});
 }
 
-template <typename... Types> bool Parser::match(Types... types) {
+template <typename... Types>
+bool Parser::match(Types... types) {
   return match({types...});
 }
 
-} // namespace plzerow
+}  // namespace plzerow
