@@ -1,9 +1,8 @@
-#include "debugger.hpp"
 #include <fmt/core.h>
 #include <cstdint>
 #include <iostream>
-#include "value.hpp"
-#include "virtual_machine.hpp"
+#include <plzerow/debugger.hpp>
+#include <plzerow/value.hpp>
 
 namespace {
 

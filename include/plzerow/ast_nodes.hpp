@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <variant>
-#include "token_type.hpp"
+#include <plzerow/token_type.hpp>
 
 namespace plzerow {
 

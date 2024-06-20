@@ -35,7 +35,7 @@ def generate_header(nodes):
 #include <string>
 #include <vector>
 #include <variant>
-#include "token_type.hpp"
+#include <plzerow/token_type.hpp>
 
 namespace plzerow {
 
@@ -138,7 +138,7 @@ std::unique_ptr<ASTNode> make_ast_node(std::size_t linum,
 
 def generate_source(nodes):
     source = """
-#include "ast_nodes.hpp"
+#include <plzerow/ast_nodes.hpp>
 
 namespace plzerow {
 

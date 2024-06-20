@@ -1,13 +1,13 @@
-#include "lexer.hpp"
+#include <fmt/core.h>
 #include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <iterator>
+#include <plzerow/lexer.hpp>
+#include <plzerow/token.hpp>
+#include <plzerow/token_type.hpp>
 #include <string>
 #include <unordered_map>
-#include "fmt/core.h"
-#include "token.hpp"
-#include "token_type.hpp"
 
 namespace plzerow {
 

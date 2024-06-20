@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <plzerow/op_codes.hpp>
+#include <plzerow/value.hpp>
 #include <vector>
-#include "op_codes.hpp"
-#include "value.hpp"
 
 namespace plzerow {
 

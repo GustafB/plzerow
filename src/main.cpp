@@ -1,6 +1,6 @@
-#include "virtual_machine.hpp"
 #include <cstdlib>
 #include <iostream>
+#include <plzerow/virtual_machine.hpp>
 
 /*
  * pl0c -- PL/0 compiler.

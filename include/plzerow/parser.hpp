@@ -2,10 +2,9 @@
 
 #include <functional>
 #include <memory>
-#include <sstream>
+#include <plzerow/ast_nodes.hpp>
+#include <plzerow/token.hpp>
 #include <vector>
-#include "ast_nodes.hpp"
-#include "token.hpp"
 
 namespace {
 

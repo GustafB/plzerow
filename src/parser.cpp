@@ -1,11 +1,11 @@
-#include "parser.hpp"
+#include <fmt/core.h>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <plzerow/ast_nodes.hpp>
+#include <plzerow/parser.hpp>
+#include <plzerow/token_type.hpp>
 #include <sstream>
-#include "ast_nodes.hpp"
-#include "fmt/core.h"
-#include "token_type.hpp"
 
 namespace plzerow {
 
@@ -189,8 +189,11 @@ std::unique_ptr<ASTNode> Parser::primary() {
 }
 
 std::unique_ptr<ASTNode> Parser::grouping() {
+  const std::size_t linum = current().linum();
+  const std::size_t column = current().token_start();
   auto expr = expression();
   expect(TOKEN::RPAREN);
+  return make_ast_node<Grouping>(linum, column, std::move(expr));
   return expr;
 }
 

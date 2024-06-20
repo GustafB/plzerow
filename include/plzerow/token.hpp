@@ -1,23 +1,27 @@
 #pragma once
 
-#include "token_type.hpp"
 #include <ostream>
+#include <plzerow/token_type.hpp>
 #include <string>
 #include <utility>
 
 namespace plzerow {
 
 class Token {
-public:
+ public:
   Token(TOKEN token, std::size_t linum, std::size_t token_start)
       : _token{token}, _literal{""}, _linum{linum}, _token_start{token_start} {}
   Token(TOKEN token, const std::string &literal, std::size_t linum,
         std::size_t token_start)
-      : _token{token}, _literal{literal}, _linum{linum},
+      : _token{token},
+        _literal{literal},
+        _linum{linum},
         _token_start{token_start} {}
   Token(TOKEN token, std::string &&literal, std::size_t linum,
         std::size_t token_start)
-      : _token{token}, _literal{std::move(literal)}, _linum{linum},
+      : _token{token},
+        _literal{std::move(literal)},
+        _linum{linum},
         _token_start{token_start} {}
 
   Token(const Token &) = default;
@@ -33,11 +37,11 @@ public:
 
   friend std::ostream &operator<<(std::ostream &os, const Token &lexeme);
 
-private:
+ private:
   TOKEN _token;
   std::string _literal;
   std::size_t _linum;
   std::size_t _token_start;
 };
 
-} // namespace plzerow
+}  // namespace plzerow

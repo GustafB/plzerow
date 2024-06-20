@@ -1,7 +1,7 @@
-#include "inputhandler.hpp"
 #include <fstream>
 #include <iostream>
 #include <istream>
+#include <plzerow/inputhandler.hpp>
 
 namespace plzerow {
 
@@ -41,4 +41,4 @@ std::vector<char> InputHandler::read_from_repl(std::istream &is) {
   return {current_line.begin(), current_line.end()};
 }
 
-} // namespace plzerow
+}  // namespace plzerow

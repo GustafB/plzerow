@@ -1,7 +1,7 @@
-#include "chunk.hpp"
 #include <cstdint>
-#include "op_codes.hpp"
-#include "value.hpp"
+#include <plzerow/chunk.hpp>
+#include <plzerow/op_codes.hpp>
+#include <plzerow/value.hpp>
 
 namespace plzerow {
 

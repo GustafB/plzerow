@@ -1,11 +1,11 @@
-#include "compiler.hpp"
 #include <cstdlib>
 #include <memory>
+#include <plzerow/ast_nodes.hpp>
+#include <plzerow/chunk.hpp>
+#include <plzerow/compiler.hpp>
+#include <plzerow/parser.hpp>
+#include <plzerow/value.hpp>
 #include <utility>
-#include "ast_nodes.hpp"
-#include "chunk.hpp"
-#include "parser.hpp"
-#include "value.hpp"
 
 namespace {
 
@@ -79,16 +79,8 @@ void Compiler::evaluate(const std::unique_ptr<ASTNode> &expr) {
 
 void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
   static const Visitor byte_code_generator{
-      [this](const Equality &expr) -> void {
-        std::cout << "Equality\n";
-        //
-        //
-      },
-      [this](const Comparison &expr) -> void {
-        std::cout << "Comparison\n";
-        //
-        //
-      },
+      [this](const Equality &expr) -> void { std::cout << "Equality\n"; },
+      [this](const Comparison &expr) -> void { std::cout << "Comparison\n"; },
       [this, &node](const Binary &expr) -> void {
         std::cout << "Binary\n";
         evaluate(expr._left);
@@ -132,11 +124,7 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
 
         _byte_code.append(op, node->_linum);
       },
-      [this](const Term &expr) -> void {
-        std::cout << "Term\n";
-        //
-        //
-      },
+      [this](const Term &expr) -> void { std::cout << "Term\n"; },
       [this, &node](const Unary &expr) -> void {
         std::cout << "Unary\n";
         evaluate(expr._right);
@@ -154,26 +142,17 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
         }
         _byte_code.append(op, node->_linum);
       },
-      [this](const Primary &expr) -> void {
-        std::cout << "Primary\n";
-        //
-        //
-      },
-      [this, &node](const Grouping &expr) -> void {
+      [this](const Primary &expr) -> void { std::cout << "Primary\n"; },
+      [this](const Grouping &expr) -> void {
         std::cout << "Grouping\n";
-        //
-        //
+        evaluate(expr._expression);
       },
       [this, &node](const Literal &expr) -> void {
         std::cout << "Literal\n";
         int number = std::atoi(expr._value.c_str());
         _byte_code.append(OP_CODE::CONSTANT, Value{number}, node->_linum);
       },
-      [this](const Factor &expr) -> void {
-        std::cout << "Factor\n";
-        //
-        //
-      }};
+      [this](const Factor &expr) -> void { std::cout << "Factor\n"; }};
 
   node->accept(byte_code_generator);
 }

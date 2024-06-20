@@ -1,5 +1,5 @@
 
-#include "ast_nodes.hpp"
+#include <plzerow/ast_nodes.hpp>
 
 namespace plzerow {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "token.hpp"
-#include "token_type.hpp"
+#include <plzerow/token.hpp>
+#include <plzerow/token_type.hpp>
 #include <string>
 #include <vector>
 
@@ -23,7 +23,7 @@ constexpr char kw_end[] = "end";
 constexpr char kw_print[] = "print";
 
 class Lexer {
-public:
+ public:
   Lexer() = default;
   Lexer(const std::string &filename, std::vector<char> &&source);
   Lexer(std::vector<char> &&source);
@@ -42,7 +42,7 @@ public:
   void parse_error(const std::string &err) const;
   bool at_end() const;
 
-private:
+ private:
   // parse expressions
   void parse_whitespace();
   void parse_comment();
@@ -70,4 +70,4 @@ private:
   std::string _filename;
 };
 
-} // namespace plzerow
+}  // namespace plzerow

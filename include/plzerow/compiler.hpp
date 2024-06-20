@@ -1,11 +1,11 @@
 #pragma once
 
-#include <cstdint>
 #include <memory>
-#include "ast_nodes.hpp"
-#include "chunk.hpp"
-#include "lexer.hpp"
-#include "parser.hpp"
+#include <plzerow/ast_nodes.hpp>
+#include <plzerow/chunk.hpp>
+#include <plzerow/lexer.hpp>
+#include <plzerow/parser.hpp>
+#include <sstream>
 
 namespace plzerow {
 

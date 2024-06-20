@@ -1,4 +1,4 @@
-#include "value.hpp"
+#include <plzerow/value.hpp>
 
 namespace plzerow {
 
@@ -8,4 +8,4 @@ std::size_t ValueArray::append(const Value &value) {
   _values.push_back(value);
   return _values.size() - 1;
 }
-} // namespace plzerow
+}  // namespace plzerow

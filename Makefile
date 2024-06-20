@@ -21,7 +21,7 @@ CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -G "$(GENERATOR)"
 # Define the Python command and script paths for generating AST classes
 PYTHON := python3
 GENERATE_AST_SCRIPT := ./tools/generate_ast_classes.py
-INCLUDE_DIR := /home/cafebabe/code/plzerow/include
+INCLUDE_DIR := /home/cafebabe/code/plzerow/include/plzerow
 SRC_DIR := /home/cafebabe/code/plzerow/src
 
 # Default target: generate AST classes, configure, and build the project

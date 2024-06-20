@@ -1,6 +1,6 @@
-#include "token.hpp"
-#include "token_type.hpp"
 #include <ostream>
+#include <plzerow/token.hpp>
+#include <plzerow/token_type.hpp>
 
 namespace plzerow {
 
@@ -15,4 +15,4 @@ std::ostream &operator<<(std::ostream &os, const Token &token) {
      << "'";
   return os;
 }
-} // namespace plzerow
+}  // namespace plzerow
