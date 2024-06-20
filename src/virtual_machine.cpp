@@ -1,5 +1,4 @@
 #include "virtual_machine.hpp"
-#include <cstddef>
 #include <functional>
 #include <iostream>
 #include <string>
@@ -8,6 +7,7 @@
 #include "chunk.hpp"
 #include "debugger.hpp"
 #include "inputhandler.hpp"
+#include "op_codes.hpp"
 #include "value.hpp"
 
 namespace {
@@ -23,10 +23,12 @@ void dump_stack(std::stack<plzerow::Value> stack) {
   std::cout << "]\n";
 }
 
-auto Negate = [](auto &&arg) -> plzerow::Value { return -arg; };
+auto logical_not = [](auto &&arg) -> plzerow::Value { return !arg; };
 
-auto BinaryOp = [](const plzerow::Value &lhs, const plzerow::Value &rhs,
-                   std::function<double(double, double)> f) -> plzerow::Value {
+auto logical_negate = [](auto &&arg) -> plzerow::Value { return -arg; };
+
+auto binary_op = [](const plzerow::Value &lhs, const plzerow::Value &rhs,
+                    std::function<double(double, double)> f) -> plzerow::Value {
   auto lhs_v = std::visit(plzerow::Number, lhs);
   auto rhs_v = std::visit(plzerow::Number, rhs);
   /*
@@ -53,38 +55,56 @@ Value VM::pop_stack() {
 }
 
 InterpretResult VM::run() {
-  std::cout << _chunk.size() << "\n";
   auto first_instruction = _chunk.cbegin();
   for (;;) {
     dump_stack(_stack);
     auto offset = std::distance(first_instruction, _ip);
     Debugger::disassemble_instruction(offset, _chunk);
-    std::uint8_t instruction;
-    switch (instruction = *next()) {
-    case OP_CONSTANT:
-    case OP_CONSTANT_LONG:
-      _stack.push(_chunk.constant(*next()));
+    OP_CODE instruction = static_cast<OP_CODE>(*next());
+    switch (instruction) {
+    case OP_CODE::CONSTANT:
+    case OP_CODE::CONSTANT_LONG:
+      _stack.push(_chunk.constant(static_cast<std::size_t>(*next())));
       break;
-    case OP_NEGATE:
-      _stack.push(std::visit(Negate, pop_stack()));
+    case OP_CODE::NEGATE:
+      _stack.push(std::visit(logical_negate, pop_stack()));
       break;
-    case OP_MULTIPLY:
+    case OP_CODE::NOT:
+      _stack.push(std::visit(logical_not, pop_stack()));
+      break;
+    case OP_CODE::MULTIPLY:
       _stack.push(
-          BinaryOp(pop_stack(), pop_stack(), std::multiplies<std::int32_t>()));
+          binary_op(pop_stack(), pop_stack(), std::multiplies<std::int32_t>()));
       break;
-    case OP_DIVIDE:
+    case OP_CODE::DIVIDE:
       _stack.push(
-          BinaryOp(pop_stack(), pop_stack(), std::divides<std::int32_t>()));
+          binary_op(pop_stack(), pop_stack(), std::divides<std::int32_t>()));
       break;
-    case OP_ADD:
+    case OP_CODE::ADD:
       _stack.push(
-          BinaryOp(pop_stack(), pop_stack(), std::plus<std::int32_t>()));
+          binary_op(pop_stack(), pop_stack(), std::plus<std::int32_t>()));
       break;
-    case OP_SUBTRACT:
+    case OP_CODE::SUBTRACT:
       _stack.push(
-          BinaryOp(pop_stack(), pop_stack(), std::minus<std::int32_t>()));
+          binary_op(pop_stack(), pop_stack(), std::minus<std::int32_t>()));
       break;
-    case OP_RETURN:
+    case OP_CODE::LT:
+      _stack.push(
+          binary_op(pop_stack(), pop_stack(), std::less<std::int32_t>()));
+      break;
+    case OP_CODE::LE:
+      _stack.push(
+          binary_op(pop_stack(), pop_stack(), std::less_equal<std::int32_t>()));
+      break;
+    case OP_CODE::GT:
+      _stack.push(
+          binary_op(pop_stack(), pop_stack(), std::greater<std::int32_t>()));
+      break;
+    case OP_CODE::GE:
+      _stack.push(binary_op(pop_stack(), pop_stack(),
+                            std::greater_equal<std::int32_t>()));
+      break;
+    case OP_CODE::RETURN:
       std::visit(PrintVisitor, _stack.top());
       std::cout << "\n";
       _stack.pop();

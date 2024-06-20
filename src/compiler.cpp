@@ -1,14 +1,11 @@
 #include "compiler.hpp"
-#include <cstdint>
 #include <cstdlib>
 #include <memory>
-#include <sstream>
 #include <utility>
 #include "ast_nodes.hpp"
 #include "chunk.hpp"
 #include "parser.hpp"
 #include "value.hpp"
-#include "virtual_machine.hpp"
 
 namespace {
 
@@ -36,7 +33,7 @@ CompilerResult Compiler::compile(std::vector<char> &&source_code) {
   std::cout << to_npn(_ast) << "\n";
   _byte_code = Chunk();
   generate_byte_code(_ast);
-  _byte_code.append(OP_RETURN, 0);
+  _byte_code.append(OP_CODE::RETURN, 0);
   return CompilerResult::OK;
 }
 
@@ -97,23 +94,39 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
         evaluate(expr._left);
         evaluate(expr._right);
 
-        std::uint8_t op;
+        OP_CODE op;
         switch (expr._op) {
         case TOKEN::PLUS:
-          op = OP_ADD;
+          op = OP_CODE::ADD;
           break;
         case TOKEN::MINUS:
-          op = OP_SUBTRACT;
+          op = OP_CODE::SUBTRACT;
           break;
         case TOKEN::MULTIPLY:
-          op = OP_MULTIPLY;
+          op = OP_CODE::MULTIPLY;
           break;
         case TOKEN::DIVIDE:
-          op = OP_DIVIDE;
+          op = OP_CODE::DIVIDE;
+          break;
+        case TOKEN::GT:
+          op = OP_CODE::GT;
+          break;
+        case TOKEN::GE:
+          op = OP_CODE::GE;
+          break;
+        case TOKEN::LE:
+          op = OP_CODE::LE;
+          break;
+        case TOKEN::LT:
+          op = OP_CODE::LT;
+          break;
+        case TOKEN::SAME:
+          op = OP_CODE::EQUALITY;
           break;
         default:
           return;
         }
+
         _byte_code.append(op, node->_linum);  //
       },
       [this](const Term &expr) -> void {
@@ -125,12 +138,13 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
         std::cout << "Unary\n";
         evaluate(expr._right);
 
-        std::uint8_t op;
+        OP_CODE op;
         switch (expr._op) {
-        // case TOKEN::NOT:
-        //   op = OP_NEGATE;
+        case TOKEN::NOT:
+          op = OP_CODE::NOT;
+          break;
         case TOKEN::MINUS:
-          op = OP_NEGATE;
+          op = OP_CODE::NEGATE;
           break;
         default:
           return;
@@ -150,7 +164,7 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
       [this, &node](const Literal &expr) -> void {
         std::cout << "Literal\n";
         int number = std::atoi(expr._value.c_str());
-        _byte_code.append(OP_CONSTANT, Value{number}, node->_linum);
+        _byte_code.append(OP_CODE::CONSTANT, Value{number}, node->_linum);
       },
       [this](const Factor &expr) -> void {
         std::cout << "Factor\n";

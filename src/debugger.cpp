@@ -1,5 +1,6 @@
 #include "debugger.hpp"
 #include <fmt/core.h>
+#include <cstdint>
 #include <iostream>
 #include "value.hpp"
 #include "virtual_machine.hpp"
@@ -9,8 +10,8 @@ namespace {
 std::size_t constant_instruction_helper(const std::string &name,
                                         std::size_t offset,
                                         const plzerow::Chunk &chunk) {
-  auto constant_index = chunk.cbegin()[offset + 1];
-  auto result = fmt::format("{:<16} {:4} '", name, constant_index);
+  const std::uint8_t constant_index = chunk.cbegin()[offset + 1];
+  const std::string result = fmt::format("{:<16} {:4} '", name, constant_index);
   std::cout << result;
   chunk.visit_constant(constant_index, plzerow::PrintVisitor);
   std::cout << "\n";
@@ -45,26 +46,40 @@ std::size_t Debugger::disassemble_instruction(std::size_t offset,
   else
     std::cout << fmt::format("{:04} ", chunk.linum(offset));
 
-  auto instruction = chunk.cbegin()[offset];
-  switch (chunk.cbegin()[offset]) {
-  case OP_DIVIDE:
-    return simple_instruction("OP_DIVIDE", offset);
-  case OP_SUBTRACT:
-    return simple_instruction("OP_SUBTRACT", offset);
-  case OP_MULTIPLY:
-    return simple_instruction("OP_MULTIPLY", offset);
-  case OP_ADD:
-    return simple_instruction("OP_ADD", offset);
-  case OP_NEGATE:
-    return simple_instruction("OP_NEGATE", offset);
-  case OP_RETURN:
-    return simple_instruction("OP_RETURN", offset);
-  case OP_CONSTANT:
-    return constant_instruction("OP_CONSTANT", offset, chunk);
-  case OP_CONSTANT_LONG:
-    return constant_long_instruction("OP_CONSTANT_LONG", offset, chunk);
+  const auto instruction = static_cast<OP_CODE>(chunk.cbegin()[offset]);
+  switch (instruction) {
+  case OP_CODE::EQUALITY:
+    return simple_instruction("EQUALITY", offset);
+  case OP_CODE::LT:
+    return simple_instruction("LT", offset);
+  case OP_CODE::LE:
+    return simple_instruction("LE", offset);
+  case OP_CODE::GT:
+    return simple_instruction("GT", offset);
+  case OP_CODE::GE:
+    return simple_instruction("GE", offset);
+  case OP_CODE::ERROR:
+    return simple_instruction("ERROR", offset);
+  case OP_CODE::NOT:
+    return simple_instruction("NOT", offset);
+  case OP_CODE::DIVIDE:
+    return simple_instruction("DIVIDE", offset);
+  case OP_CODE::SUBTRACT:
+    return simple_instruction("SUBTRACT", offset);
+  case OP_CODE::MULTIPLY:
+    return simple_instruction("MULTIPLY", offset);
+  case OP_CODE::ADD:
+    return simple_instruction("ADD", offset);
+  case OP_CODE::NEGATE:
+    return simple_instruction("NEGATE", offset);
+  case OP_CODE::RETURN:
+    return simple_instruction("RETURN", offset);
+  case OP_CODE::CONSTANT:
+    return constant_instruction("CONSTANT", offset, chunk);
+  case OP_CODE::CONSTANT_LONG:
+    return constant_long_instruction("CONSTANT_LONG", offset, chunk);
   default:
-    std::cout << "unknown opcode " << instruction << "\n";
+    std::cout << "unknown opcode " << static_cast<char>(instruction) << "\n";
     return offset + 1;
   }
 }

@@ -9,23 +9,6 @@
 
 namespace plzerow {
 
-enum OP_CODE : std::uint8_t {
-  OP_RETURN,
-  OP_CONSTANT,
-  OP_CONSTANT_LONG,
-  OP_NEGATE,
-  OP_ADD,
-  OP_MULTIPLY,
-  OP_SUBTRACT,
-  OP_DIVIDE,
-  OP_EQUALITY,
-  OP_LT,
-  OP_LE,
-  OP_GT,
-  OP_GE,
-  OP_ERROR
-};
-
 enum class InterpretResult { OK, COMPILE_ERROR, RUNTIME_ERROR };
 
 class VM {

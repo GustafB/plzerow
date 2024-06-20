@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include "op_codes.hpp"
 #include "value.hpp"
 
 namespace plzerow {
@@ -15,10 +16,9 @@ class Chunk {
   friend class Debugger;
 
  public:
-  std::size_t size() { return _instructions.size(); }
-  std::uint8_t append(std::uint8_t instruction, std::size_t linum);
-  std::uint8_t append(std::uint8_t instruction, const Value &value,
-                      std::size_t linum);
+  std::size_t append(OP_CODE instruction, std::size_t linum);
+  std::size_t append(OP_CODE instruction, const Value &value,
+                     std::size_t linum);
 
   InstructionPointer cbegin() const;
 
@@ -30,7 +30,7 @@ class Chunk {
   std::uint16_t linum(std::size_t instruction_index) const;
 
  private:
-  std::uint8_t append(std::uint8_t instruction);
+  std::size_t append(std::uint8_t instruction);
   void add_linum(std::uint16_t linum, std::uint16_t op_size);
 
   InstructionContainer _instructions;

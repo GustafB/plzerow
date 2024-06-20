@@ -35,6 +35,7 @@ enum class TOKEN {
   NOTEQUAL,
   GE,
   LE,
+  SAME,
   ENDFILE = '\0',
   ERROR,
   UNKNOWN,

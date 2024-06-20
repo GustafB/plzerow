@@ -1,25 +1,26 @@
 #include "chunk.hpp"
-#include "value.hpp"
 #include <cstdint>
+#include "op_codes.hpp"
+#include "value.hpp"
 
 namespace plzerow {
 
-std::uint8_t Chunk::append(std::uint8_t instruction) {
-  _instructions.push_back(instruction);
+std::size_t Chunk::append(std::uint8_t instruction) {
+  _instructions.push_back(static_cast<std::uint8_t>(instruction));
   return _instructions.size();
 }
 
-std::uint8_t Chunk::append(std::uint8_t instruction, std::size_t linum) {
+std::size_t Chunk::append(OP_CODE instruction, std::size_t linum) {
   add_linum(linum, 1);
-  return append(instruction);
+  return append(static_cast<std::uint8_t>(instruction));
 }
 
-std::uint8_t Chunk::append(std::uint8_t instruction, const Value &value,
-                           std::size_t linum) {
+std::size_t Chunk::append(OP_CODE instruction, const Value &value,
+                          std::size_t linum) {
   auto constant_index = _constants.append(value);
   add_linum(linum, 2);
-  append(instruction);
-  return append(constant_index) - 1;
+  append(static_cast<uint8_t>(instruction));
+  return append(static_cast<std::uint8_t>(constant_index)) - 1;
 }
 
 void Chunk::add_linum(std::uint16_t linum, std::uint16_t instruction_size) {
@@ -64,4 +65,4 @@ Value Chunk::constant(std::size_t index) const {
   return _constants.values()[index];
 }
 
-} // namespace plzerow
+}  // namespace plzerow
