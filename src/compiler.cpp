@@ -7,6 +7,7 @@
 #include <plzerow/op_codes.hpp>
 #include <plzerow/parser.hpp>
 #include <plzerow/value.hpp>
+#include <string>
 #include <utility>
 
 namespace {
@@ -117,15 +118,36 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
         }
         emit_instruction(op, node->_linum);
       },
-      [this](const Primary &expr) -> void { std::cout << "Primary\n"; },
+      [this](const Primary &expr) -> void {
+        std::cout << "Primary\n";
+        evaluate(expr._value);
+      },
       [this](const Grouping &expr) -> void {
         std::cout << "Grouping\n";
         evaluate(expr._expression);
       },
       [this, &node](const Literal &expr) -> void {
         std::cout << "Literal\n";
-        int number = std::atoi(expr._value.c_str());
-        emit_constant(OP_CODE::CONSTANT, Value{number}, node->_linum);
+        switch (expr._type) {
+        case TOKEN::INTEGER:
+          emit_constant(OP_CODE::CONSTANT, Value{expr.as_int()}, node->_linum);
+          break;
+        case TOKEN::STRING:
+          emit_constant(OP_CODE::CONSTANT, Value{expr.as_string()},
+                        node->_linum);
+          break;
+        case TOKEN::BOOL:
+          emit_constant(OP_CODE::CONSTANT, Value{expr.as_bool()}, node->_linum);
+          break;
+        case TOKEN::DOUBLE:
+          emit_constant(OP_CODE::CONSTANT, Value{expr.as_double()},
+                        node->_linum);
+          break;
+        default:
+          std::cout << "invalid token: " << static_cast<char>(expr._type)
+                    << "\n";
+          return;
+        }
       },
       [this](const Factor &expr) -> void { std::cout << "Factor\n"; }};
 

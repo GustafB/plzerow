@@ -103,10 +103,10 @@ struct Primary {
 };
 
 struct Literal {
-  Literal(std::string value) : _value(value) {}
-  Literal(bool value) : _value(value) {}
-  Literal(std::int32_t value) : _value(value) {}
-  Literal(double value) : _value(value) {}
+  Literal(std::string value) : _value(value), _type(TOKEN::STRING) {}
+  Literal(bool value) : _value(value), _type(TOKEN::BOOL) {}
+  Literal(std::int32_t value) : _value(value), _type(TOKEN::INTEGER) {}
+  Literal(double value) : _value(value), _type(TOKEN::DOUBLE) {}
 
   Literal(Literal&&) = default;
   Literal& operator=(Literal&&) = default;
@@ -116,8 +116,8 @@ struct Literal {
   std::int32_t as_int() const;
   double as_double() const;
 
-  TOKEN _type;
   std::variant<std::int32_t, double, std::string, bool> _value;
+  TOKEN _type;
 };
 
 class ASTNode {

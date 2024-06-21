@@ -5,7 +5,11 @@ namespace plzerow {
 enum class TOKEN {
   PROGRAM,
   IDENT = 'I',
-  NUMBER = 'N',
+  INTEGER = 'N',
+  DOUBLE = 'F',
+  BOOL = 'b',
+  STRING = 's',
+  // NULL = 'n',
   CONST = 'C',
   VAR = 'V',
   PROCEDURE = 'P',

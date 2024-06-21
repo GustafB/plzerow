@@ -44,6 +44,7 @@ class Parser {
   std::unique_ptr<ASTNode> comparison();
   std::unique_ptr<ASTNode> unary();
   std::unique_ptr<ASTNode> primary();
+  std::unique_ptr<ASTNode> literal();
 
   std::unique_ptr<ASTNode> make_constant();
   std::unique_ptr<ASTNode> make_var();

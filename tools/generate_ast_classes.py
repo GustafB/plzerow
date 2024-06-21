@@ -22,8 +22,8 @@ ast_nodes = [
     "Unary     : TOKEN op | std::unique_ptr<ASTNode> right",
     "Binary    : std::unique_ptr<ASTNode> left | TOKEN op | std::unique_ptr<ASTNode> right",
     "Factor    : std::unique_ptr<ASTNode> left | TOKEN op | std::unique_ptr<ASTNode> right",
-    "Primary   : std::unique_ptr<ASTNode> value",
-    "Literal   : std::string value",
+    "Primary   : std::unique_ptr<ASTNode> literal",
+    "Literal   : std::variant<std::uint32_t, double, std::string, bool> value | TOKEN type",
 ]
 
 

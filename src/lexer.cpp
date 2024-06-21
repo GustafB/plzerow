@@ -101,7 +101,7 @@ Token Lexer::parse_number() {
                       std::back_inserter(number),
                       [](char c) { return c == '\''; });
   _literal = number;
-  _token = TOKEN::NUMBER;
+  _token = TOKEN::INTEGER;
   return Token(_token, _literal, _linum, _token_line_pos);
 }
 

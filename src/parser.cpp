@@ -173,12 +173,34 @@ std::unique_ptr<ASTNode> Parser::unary() {
 std::unique_ptr<ASTNode> Parser::primary() {
   const std::size_t linum = current().linum();
   const std::size_t column = current().token_start();
-  if (match(TOKEN::NUMBER)) {
-    return make_ast_node<Literal>(linum, column, previous().literal());
+  if (match(TOKEN::INTEGER, TOKEN::DOUBLE, TOKEN::BOOL, TOKEN::STRING)) {
+    return make_ast_node<Primary>(linum, column, literal());
   }
   if (match(TOKEN::LPAREN)) {
     return grouping();
   }
+  return nullptr;
+}
+
+std::unique_ptr<ASTNode> Parser::literal() {
+  const std::size_t linum = previous().linum();
+  const std::size_t column = previous().token_start();
+
+  switch (previous().type()) {
+  case TOKEN::INTEGER:
+    return make_ast_node<Literal>(linum, column,
+                                  std::stoi(previous().literal()));
+  case TOKEN::STRING:
+    return make_ast_node<Literal>(linum, column, previous().literal());
+  case TOKEN::BOOL:
+    return make_ast_node<Literal>(
+        linum, column, previous().literal() == "true" ? true : false);
+  case TOKEN::DOUBLE:
+    return make_ast_node<Literal>(linum, column,
+                                  std::stod(previous().literal()));
+  }
+
+  // shouldn't be reachable
   return nullptr;
 }
 

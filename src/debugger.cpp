@@ -22,7 +22,9 @@ std::size_t constant_instruction_helper(const std::string &name,
   const std::uint8_t constant_index = chunk.cbegin()[offset + 1];
   const std::string result = fmt::format("{:<16} {:4} '", name, constant_index);
   std::cout << result;
-  chunk.visit_constant(constant_index, plzerow::PrintVisitor);
+
+  auto print = [](auto &&arg) -> void { std::cout << arg << "\n"; };
+  std::visit(print, chunk.constant(constant_index)._value);
   std::cout << "\n";
   return offset + 2;
 }
@@ -137,7 +139,13 @@ std::string Debugger::ast_to_npn(const std::unique_ptr<ASTNode> &node) {
       [](const Primary &expr) -> std::string {
         return ast_to_npn(expr._value);
       },
-      [](const Literal &expr) -> std::string { return expr._value; },
+      [](const Literal &expr) -> std::string {
+        return std::visit(
+            [&](const auto &value) -> std::string {
+              return fmt::format("{}", value);
+            },
+            expr._value);
+      },
       [char_to_str](const Factor &expr) -> std::string {
         return parenthesize(char_to_str(expr._op), expr._left, expr._right);
       }};
