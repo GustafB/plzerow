@@ -9,7 +9,7 @@ enum class TOKEN {
   DOUBLE = 'F',
   BOOL = 'b',
   STRING = 's',
-  // NULL = 'n',
+  NIL = 'n',
   CONST = 'C',
   VAR = 'V',
   PROCEDURE = 'P',

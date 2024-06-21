@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <plzerow/chunk.hpp>
@@ -72,7 +71,8 @@ auto logical_negate = [](plzerow::Value&& arg) -> plzerow::Value {
           return -arg.as_double();
           break;
         default:
-          throw std::runtime_error("only numbers can be negated");
+          throw std::runtime_error(
+              "only numbers can have their signedness inverted");
         }
       },
       arg._value);
@@ -86,11 +86,19 @@ plzerow::Value binary_op(const plzerow::Value& lhs, const plzerow::Value& rhs,
         using LhsType = std::decay_t<decltype(lhs_val)>;
         using RhsType = std::decay_t<decltype(rhs_val)>;
 
+        if constexpr (std::is_same_v<Func, std::plus<>> &&
+                      std::is_same_v<LhsType, std::string> &&
+                      std::is_same_v<LhsType, RhsType>) {
+          return lhs_val + rhs_val;
+        } else {
+          throw std::runtime_error("unsupported operation on string type");
+        }
+
         if constexpr (std::is_integral_v<LhsType> &&
                       std::is_same_v<LhsType, RhsType>) {
           return f(lhs_val, rhs_val);
         } else {
-          throw std::runtime_error("type mismatch in binary operation");
+          throw std::runtime_error("invalid types for binary operation");
         }
       },
       lhs._value, rhs._value);
@@ -165,7 +173,7 @@ InterpretResult VM::run() {
       break;
     case OP_CODE::RETURN:
       std::visit(print, _stack.top()._value);
-      std::cout << "\n";
+      // std::cout << "\n";
       _stack.pop();
       return InterpretResult::OK;
     default:
@@ -185,11 +193,15 @@ void VM::load_chunk(Chunk&& chunk) {
 
 void VM::repl() {
   for (;;) {
-    std::cout << "> ";
-    auto source_code = InputHandler::read_from_repl(std::cin);
-    _compiler.compile(std::move(source_code));
-    load_chunk(_compiler.byte_code());
-    run();
+    try {
+      std::cout << "> ";
+      auto source_code = InputHandler::read_from_repl(std::cin);
+      _compiler.compile(std::move(source_code));
+      load_chunk(_compiler.byte_code());
+      run();
+    } catch (const std::runtime_error& err) {
+      std::cerr << err.what() << "\n";
+    }
   }
 }
 

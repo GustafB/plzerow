@@ -87,22 +87,44 @@ Token Lexer::parse_ident() {
     _token = TOKEN::IDENT;
   }
 
-  return Token(_token, _literal, _linum, _token_line_pos);
+  return Token(_token, _literal, _linum, pos);
 }
 
 Token Lexer::parse_number() {
-  const auto pos = _token_start;
-  std::string number;
-  while (std::isdigit(peek()) || peek() == '\'') {
+  const std::size_t pos = _token_start;
+  TOKEN token = TOKEN::INTEGER;
+  while (std::isdigit(peek()) || peek() == '\'' || peek() == '.') {
+    if (peek() == '.') {
+      token = TOKEN::DOUBLE;
+    }
     advance();
   }
 
+  std::string number;
   std::remove_copy_if(_buffer.begin() + pos, _buffer.begin() + _pos,
                       std::back_inserter(number),
                       [](char c) { return c == '\''; });
   _literal = number;
-  _token = TOKEN::INTEGER;
-  return Token(_token, _literal, _linum, _token_line_pos);
+  _token = token;
+  return Token(_token, _literal, _linum, pos);
+}
+
+Token Lexer::parse_string() {
+  const std::size_t pos = _token_start;
+  while (peek() != '"') {
+    if (at_end()) {
+      _token = TOKEN::ERROR;
+      _literal = fmt::format("unfinished string, reached end of file");
+      break;
+    }
+    advance();
+  }
+
+  advance();
+
+  std::string{_buffer.begin() + pos + 1, _buffer.begin() + _pos - 1}.swap(
+      _literal);
+  return Token(TOKEN::STRING, _literal, _linum, pos);
 }
 
 void Lexer::parse_comment() {
@@ -134,6 +156,7 @@ void Lexer::parse_whitespace() {
     }
   }
 }
+
 Token Lexer::next() {
   parse_whitespace();
 
@@ -148,6 +171,8 @@ Token Lexer::next() {
     return parse_ident();
   } else if (std::isdigit(c)) {
     return parse_number();
+  } else if (c == '"') {
+    return parse_string();
   }
 
   switch (c) {

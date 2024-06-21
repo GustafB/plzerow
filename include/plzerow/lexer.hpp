@@ -48,6 +48,7 @@ class Lexer {
   void parse_comment();
   Token parse_ident();
   Token parse_number();
+  Token parse_string();
 
   // helpers
   char peek() const;
