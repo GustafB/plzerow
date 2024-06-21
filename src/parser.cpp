@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <plzerow/assert.hpp>
 #include <plzerow/ast_nodes.hpp>
 #include <plzerow/parser.hpp>
 #include <plzerow/token_type.hpp>
@@ -201,6 +202,7 @@ std::unique_ptr<ASTNode> Parser::literal() {
   }
 
   // shouldn't be reachable
+  PLZEROW_ASSERT(false && "invalid type provided");
   return nullptr;
 }
 

@@ -34,7 +34,7 @@ add_executable(plzerow
     src/debugger.cpp
     src/compiler.cpp
     src/ast_nodes.cpp
-    # src/assert.cpp
+    src/assert.cpp
 )
 
 target_include_directories(plzerow PUBLIC

@@ -120,7 +120,7 @@ void Compiler::generate_byte_code(const std::unique_ptr<ASTNode> &node) {
       },
       [this](const Primary &expr) -> void {
         std::cout << "Primary\n";
-        evaluate(expr._value);
+        evaluate(expr._literal);
       },
       [this](const Grouping &expr) -> void {
         std::cout << "Grouping\n";

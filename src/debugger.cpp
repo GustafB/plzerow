@@ -137,7 +137,7 @@ std::string Debugger::ast_to_npn(const std::unique_ptr<ASTNode> &node) {
         return parenthesize(char_to_str(expr._op), expr._right);
       },
       [](const Primary &expr) -> std::string {
-        return ast_to_npn(expr._value);
+        return ast_to_npn(expr._literal);
       },
       [](const Literal &expr) -> std::string {
         return std::visit(

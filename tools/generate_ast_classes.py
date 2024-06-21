@@ -66,6 +66,8 @@ using ExprVector = std::vector<Expression>;
     for node in nodes:
         parts = node.split(":", 1)
         struct_name = parts[0].strip()
+        if struct_name == "Literal":
+            continue
         fields = [f.strip() for f in parts[1].split("|")]
 
         header += f"struct {struct_name} {{\n"
@@ -98,6 +100,25 @@ using ExprVector = std::vector<Expression>;
         header += "};\n\n"
 
     header += """
+struct Literal {
+  Literal(std::string value) : _value(value), _type(TOKEN::STRING) {}
+  Literal(bool value) : _value(value), _type(TOKEN::BOOL) {}
+  Literal(std::int32_t value) : _value(value), _type(TOKEN::INTEGER) {}
+  Literal(double value) : _value(value), _type(TOKEN::DOUBLE) {}
+
+  Literal(Literal&&) = default;
+  Literal& operator=(Literal&&) = default;
+
+  bool as_bool() const;
+  const std::string& as_string() const;
+  std::int32_t as_int() const;
+  double as_double() const;
+
+  std::variant<std::int32_t, double, std::string, bool> _value;
+  TOKEN _type;
+};
+
+
 class ASTNode {
 public:
     template <typename T>
@@ -139,8 +160,35 @@ std::unique_ptr<ASTNode> make_ast_node(std::size_t linum,
 def generate_source(nodes):
     source = """
 #include <plzerow/ast_nodes.hpp>
+#include <plzerow/assert.hpp>
 
 namespace plzerow {
+
+bool Literal::as_bool() const {
+  PLZEROW_ASSERT(std::holds_alternative<bool>(_value) &&
+                 "literal does not contain type 'bool'");
+  return std::get<bool>(_value);
+}
+
+const std::string& Literal::as_string() const {
+  PLZEROW_ASSERT(std::holds_alternative<std::string>(_value) &&
+                 "literal does not contain type 'string'");
+  return std::get<std::string>(_value);
+}
+
+std::int32_t Literal::as_int() const {
+  PLZEROW_ASSERT(std::holds_alternative<std::int32_t>(_value) &&
+                 "literal does not contain type 'int'");
+  return std::get<std::int32_t>(_value);
+}
+
+double Literal::as_double() const {
+  PLZEROW_ASSERT(std::holds_alternative<double>(_value) &&
+                 "literal does not contain type 'double'");
+  return std::get<double>(_value);
+}
+
+
 
 } // namespace plzerow
 """

@@ -96,10 +96,10 @@ struct Factor {
 };
 
 struct Primary {
-  Primary(std::unique_ptr<ASTNode> value) : _value(std::move(value)) {}
+  Primary(std::unique_ptr<ASTNode> literal) : _literal(std::move(literal)) {}
   Primary(Primary&&) = default;
   Primary& operator=(Primary&&) = default;
-  std::unique_ptr<ASTNode> _value;
+  std::unique_ptr<ASTNode> _literal;
 };
 
 struct Literal {
